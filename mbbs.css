@@ -1,0 +1,199 @@
+/* CSS for bbs.php */
+
+#header {
+    font-size:0.7em;
+    text-align: right;
+    margin: 0px;
+    padding: 0px;
+}
+
+#footer {
+    margin-top: 12px;
+    font-size:0.7em;
+    text-align: center;
+}
+
+#title {
+    text-align: center;
+    margin: 0px;
+    padding: 0px;
+}
+
+#title h1 {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+#body {
+    width: 100%;
+    padding: 0px;
+    text-align:center;
+}
+
+#body .contents {
+    margin-left:auto;
+    margin-right:auto;
+    width: 800px;
+    padding:12px;
+    text-align: left;
+    border: 1px solid #f0f0f0;
+}
+
+.hint {
+    font-size: 0.6em;
+    color: #a0a0a0;
+}
+
+.description {
+    font-size: 0.6em;
+    color: #a0a0a0;
+    text-align: center;
+}
+
+.desctiption2 {
+    font-size: 0.7em;
+    color: #a0a0a0;
+    text-align: left;
+}
+
+.item {
+    border: 1px solid #F0F0F0;
+    background-color: #ffffff;
+    padding: 4px;
+}
+
+.indexbox {
+    border: 1px solid #fff0f0;
+    background-color: #ffffff;
+    padding: 4px;
+}
+
+.body {
+    margin: 12px 12px 12px 50px;
+    background-color: #f0f0f0;
+    font-size:0.8em;
+    line-height: 1.2em;
+    padding: 9px;
+}
+
+.itemhead {
+    background-color: #ffdddd;
+}
+
+.itemhead2 {
+    background-color: #ffeeee;
+}
+
+.inputform {
+    width: 776px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align: left;
+    padding: 12px;
+    background-color: #f0f0f0;
+    border: 1px sold #900000;
+}
+
+.inputformparent {
+    text-align: center;
+    width: 100%;
+}
+
+.inputformtable {
+    text-align: center;
+    width: 100%;
+}
+.inputformtable table {
+    margin-left:auto;
+    margin-right:auto;
+    text-align: left;
+}
+
+.inputform textarea {
+    font-size: 0.8em;
+}
+
+img { border-width: 0px; }
+
+.msg {
+    background-color: #ffffa0;
+    color: #900000;
+    width: 100%;
+    font-size:0.8em;
+}
+
+.id {
+    color: #909090;
+    font-size:0.8em;
+}
+
+.node {
+    width: 100%;
+    margin: 0px;
+    padding: 2px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.root {
+    background-color: #fff0f0;
+}
+
+curnode{
+    color: #e0e0e0;
+    background-color: #c0ffff;
+    font-weight: normal;
+}
+itemnode {
+    color: #f0e0e0;
+    font-weight: normal;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.date {
+    font-size: 0.6em;
+}
+
+.editlink {
+    font-size: 0.7em;
+    text-align: right;
+}
+
+.pager {
+    padding: 0px;
+    margin: 4px;
+    font-size: 0.6em;
+}
+
+.reply {
+    color: #0000ff;
+}
+
+.thread table {
+    border-top: 1px solid #c0c0c0;
+    border-left: 1px solid #c0c0c0;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
+}
+
+.thread table td {
+    border-right: 1px solid #a0a0a0;
+    border-bottom: 1px solid #a0a0a0;
+    border-collapse: collapse;
+    padding: 6px;
+    margin: 0px;
+}
+
+.thread table th {
+    border-right: 1px solid #a0a0a0;
+    border-bottom: 1px solid #a0a0a0;
+    color: #404040;
+    background-color: #fff0ff;
+    text-align: center;
+    padding: 6px;
+    margin: 0px;
+}
+
+.new {
+    color:#ff0000;
+}

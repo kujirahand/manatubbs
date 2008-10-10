@@ -1,0 +1,43 @@
+/* SQL for manatubbs */
+
+CREATE TABLE info (
+    version     INTEGER
+);
+
+CREATE TABLE threads (
+    threadid    INTEGER PRIMARY KEY,
+    mode        TEXT,
+    status      TEXT,
+    title       TEXT,
+    count       INTEGER, /* スレッドの個数 */
+    ctime       INTEGER, /* スレッドの作成時刻 */
+    mtime       INTEGER  /* スレッドの更新時刻 */
+);
+
+CREATE TABLE logs (
+    logid       INTEGER PRIMARY KEY,
+    threadid    INTEGER, /* スレッドのID */
+    parentid    INTEGER, /* 親(発言元)のログ */
+    title       TEXT,    /* ログの件名 */
+    body        TEXT,    /* ログの本文 */
+    name        TEXT,    /* 名前 */
+    ip          TEXT,
+    editkey     TEXT,
+    mode        TEXT,
+    status      TEXT,
+    attachid    INTEGER,
+    visible     INTEGER,
+    ctime       INTEGER,
+    mtime       INTEGER
+);
+
+CREATE TABLE attachfiles (
+    attachid    INTEGER PRIMARY KEY,
+    title       TEXT,
+    filename    TEXT
+);
+
+INSERT INTO info (version) VALUES (100);
+
+
+
