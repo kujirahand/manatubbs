@@ -26,6 +26,7 @@ $mbbs["bot.message"]     = "棚から牡丹餅";
 $mbbs["adminpass"]       = "xxx";
 $mbbs["bot.q"]           = "「なでしこ」と記入してください。";
 $mbbs["bot.a"]           = "なでしこ";
+$mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
 
 /**
  * フィールドの定義
