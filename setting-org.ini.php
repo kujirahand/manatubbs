@@ -16,8 +16,8 @@ $mbbs["db.name"] = "db/manatubbs.db";
 /**
  * 各種の初期値
  */
-#$mbbs["firstview"]       = "threads"; // はじめに表示するページ
-$mbbs["firstview"]       = "tree"; // はじめに表示するページ
+$mbbs["firstview"]       = "threads"; // はじめに表示するページ
+#$mbbs["firstview"]       = "tree"; // はじめに表示するページ
 $mbbs["threads.perpage"] = 20;
 $mbbs["logs.perpage"]    = 10;
 $mbbs["tree.perpage"]    = 8;
@@ -35,9 +35,17 @@ $mbbs["priority.label"] = "重要度";
 $mbbs["priority"] = array(
     '低','中','高','緊急'
 );
+$mbbs["priority.color"] = array(
+    '低'  =>array("bgcolor"=>'#ffffff', "color"=>"#888888"),
+    '高'  =>array("bgcolor"=>'#f8e0e0', "color"=>"#000000"),
+    '緊急'=>array("bgcolor"=>'#f8e0e0', "color"=>"#ff00cc"),
+);
 $mbbs["status.label"] = "状態";
 $mbbs["status"] = array(
     '未処理','調査中','修正中','確認待ち','解決','---','アイデア','感想','告知'
+);
+$mbbs["status.color"] = array(
+    '解決' => array('bgcolor' => '#f0f0f0', 'color' => '#aaaaaa'),
 );
 
 $mbbs["body.template"] = <<<EOS__
