@@ -53,6 +53,7 @@ function m_create_menu(&$menu)
     foreach($menu as $v) {
         $type = m_array_value($v, "type", "normal");
         $s    = "";
+        $link = "";
         switch ($type) {
             case "normal":
                 $lbl   = $v["label"];
