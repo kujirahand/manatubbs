@@ -329,6 +329,11 @@ function m_get_log_item($log)
     // thread link
     $body = preg_replace("/\(\#(\d+)\)/","(<a href='{$script}?m=log&logid=$1'>#$1</a>)",$body);
     $body = preg_replace("/\(\@(\d+)\)/","(<a href='{$script}?m=thread&threadid=$1'>@$1</a>)",$body);
+    // repos link
+    $repos = m_info("repos.link",false);
+    if ($repos) {
+        $body = preg_replace("/\(r(\d+)\)/","(<a href='{$repos}$1'>r$1</a>)",$body);
+    }
     //
     $logidlink = "<span class='id'>(<a href='{$script}?m=log&logid=$logid'>#{$logid}</a>)</span>";
     //
