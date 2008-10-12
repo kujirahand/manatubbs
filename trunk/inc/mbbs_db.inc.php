@@ -161,6 +161,8 @@ function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
     $script = m_info("script");
     $priority_label = m_info("priority.label");
     $status_label   = m_info("status.label");
+    $pri_color      = m_info("priority.color");
+    $sta_color      = m_info("status.color");
     // query threads
     $pager = "";
     $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
@@ -188,15 +190,27 @@ EOS__;
     foreach ($r as $row) {
         $threadid = $row["threadid"];
         $title = htmlspecialchars($row["title"]);
-        $mode = htmlspecialchars($row["mode"]);
+        $priority = htmlspecialchars($row["mode"]);
         $status = htmlspecialchars($row["status"]);
         $count = intval($row["count"]);
         $date = m_date($row["mtime"]);
+        $color = $bgcolor = $style = "";
+        if (isset($pri_color[$priority])) {
+            $color   = $pri_color[$priority]["color"];
+            $bgcolor = $pri_color[$priority]["bgcolor"];
+        }
+        if (isset($sta_color[$status])) {
+            $color   = $sta_color[$status]["color"];
+            $bgcolor = $sta_color[$status]["bgcolor"];
+        }
+        if ($color != "") {
+            $style = " style='background-color:$bgcolor;color:$color;'";
+        }
         //
         $titlelink = "<a href='{$script}?m=thread&threadid=$threadid'>$title</a>";
         $idlink = "<a href='{$script}?m=thread&threadid=$threadid'>@{$threadid}</a>";
         $res .= <<<EOS__
-<tr><td align="right">$idlink</td><td>$titlelink</td><td align="right">$count</td><td>$date</td><td>$mode</td><td>$status</td></tr>
+<tr{$style}><td align="right">$idlink</td><td>$titlelink</td><td align="right">$count</td><td>$date</td><td>$priority</td><td>$status</td></tr>
 EOS__;
     }
     $res .= "</table>\n";
