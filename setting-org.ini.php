@@ -50,9 +50,9 @@ EOS__;
 /**
  * メニューの定義
  */
-$scrit = $mbbs["script_name"];
+$script_name = $mbbs["script_name"];
 $mbbs["menubar"] = array();
-$mbbs["menubar"][] = array("label"=>"新規",     "link"=>"{$script}#inputform");
+$mbbs["menubar"][] = array("label"=>"新規",     "link"=>"{$script_name}#inputform");
 $mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("label"=>"ツリー",   "link"=>m_url("tree"));
 $mbbs["menubar"][] = array("type"=>"-");

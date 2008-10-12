@@ -183,7 +183,7 @@ function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
 <div class="thread">
 <div class="desctiption2">$title</div>
 <table>
-<tr class="head"><th>ID</th><th>タイトル</th><th>返信</th><th>更新日</th><th>{$priority_label}</th><th>{$status_label}</t></tr>
+<tr class="head"><th>@ID</th><th>タイトル</th><th>返信</th><th>更新日</th><th>{$priority_label}</th><th>{$status_label}</t></tr>
 EOS__;
     foreach ($r as $row) {
         $threadid = $row["threadid"];
@@ -194,8 +194,9 @@ EOS__;
         $date = m_date($row["mtime"]);
         //
         $titlelink = "<a href='{$script}?m=thread&threadid=$threadid'>$title</a>";
+        $idlink = "<a href='{$script}?m=thread&threadid=$threadid'>@{$threadid}</a>";
         $res .= <<<EOS__
-<tr><td>$threadid</td><td>$titlelink</td><td align="right">$count</td><td>$date</td><td>$mode</td><td>$status</td></tr>
+<tr><td align="right">$idlink</td><td>$titlelink</td><td align="right">$count</td><td>$date</td><td>$mode</td><td>$status</td></tr>
 EOS__;
     }
     $res .= "</table>\n";
@@ -288,9 +289,11 @@ function m_show_thread()
     $_POST["mode"]   = $r[0]["mode"];
     $_POST["status"] = $r[0]["status"];
     $_POST["parentid"] = $logid;
+    $threadurl  = m_url("thread","threadid=$threadid");
+    $threadlink = "(<a href='$threadurl'>@{$threadid}</a>)";
     //
     $header = <<<EOS__
-<span class='pager'>[<a href='$script?m=all'>一覧へ</a>]</span>
+<span class='pager'>[<a href='$script?m=all'>一覧へ</a>] &gt; $threadlink</span>
 <span class='hint'>[{$_POST['mode']}]</span>
 <span class='hint'>[{$_POST['status']}]</span>
 {$top}
@@ -310,7 +313,7 @@ function m_get_log_item($log)
         $parentlink = "<a href='{$link}'>↑</a>";
     } else {
         $link = m_link(array("m=thread", "threadid={$threadid}"));
-        $parentlink = "<a href='{$link}'>→</a>";
+        $parentlink = "<a href='{$link}'>@{$threadid}■</a>";
     }
     $class = ($parentid == 0) ? "itemhead" : "itemhead2";
     $title = htmlspecialchars($title);
@@ -323,6 +326,9 @@ function m_get_log_item($log)
     $body = "<!-- body -->\n".$body."\n<!-- end of body-->\n";
     // body replyto
     $body = preg_replace("#\n(\&gt\;[^\n]+)#","\n<span class='reply'>$1</span>",$body);
+    // thread link
+    $body = preg_replace("/\(\#(\d+)\)/","(<a href='{$script}?m=log&logid=$1'>#$1</a>)",$body);
+    $body = preg_replace("/\(\@(\d+)\)/","(<a href='{$script}?m=thread&threadid=$1'>@$1</a>)",$body);
     //
     $logidlink = "<span class='id'>(<a href='{$script}?m=log&logid=$logid'>#{$logid}</a>)</span>";
     //
@@ -333,7 +339,7 @@ function m_get_log_item($log)
 <br/>
 <div class="item">
     <div class="$class">
-         $logidlink $parentlink $title - $name $mtime_s
+         $parentlink $logidlink $title - $name $mtime_s
         <span class="hint">/$mode $status</span>
     </div>
     <div class="body">
