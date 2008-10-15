@@ -31,7 +31,7 @@ $mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
 /**
  * フィールドの定義
  */
-$mbbs["priority.label"] = "重要度";
+$mbbs["priority.label"] = "優先度";
 $mbbs["priority"] = array(
     '低','中','高','緊急'
 );
@@ -66,8 +66,10 @@ $mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("label"=>"ツリー",   "link"=>m_url("tree"));
 $mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("label"=>"スレッド", "link"=>m_url("threads"));
+$mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("label"=>"未解決",   "link"=>m_url("mikaiketu"));
 $mbbs["menubar"][] = array("label"=>"緊急",     "link"=>m_url("kinkyu"));
+$mbbs["menubar"][] = array("label"=>"優先",     "link"=>m_url("yusen"));
 $mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("label"=>"検索",     "link"=>m_url("search"));
 $mbbs["menubar"][] = array("label"=>"RSS",      "link"=>m_url("rss"));

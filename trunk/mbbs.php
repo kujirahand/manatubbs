@@ -68,6 +68,24 @@ function m_mode__kinkyu()
     __m_mode__show_threads("緊急のタスクを表示:","status!='解決' AND mode='緊急'","kinkyu");
 }
 
+function m_mode__yusen()
+{
+    $msg  = htmlspecialchars(m_param("msg", ""));
+    if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
+    $body = $msg.
+            m_show_all("緊急のもの","status!='解決' AND mode='緊急'","yusen")."<br/>".
+            m_show_all("高のもの","status!='解決' AND mode='高'","yusen")."<br/>".
+            m_show_all("中のもの","status!='解決' AND mode='中'","yusen")."<br/>".
+            m_show_form("新規で書き込む");
+    // ヘッダを表示
+    include "tpl/header.tpl.php";
+    // 本文
+    include "tpl/body.tpl.php";
+    // フッターを表示
+    include "tpl/footer.tpl.php";
+    exit;
+}
+
 function __m_mode__show_threads($title, $where_str, $m_mode = "all")
 {
     $msg  = htmlspecialchars(m_param("msg", ""));
