@@ -335,6 +335,8 @@ function m_get_log_item($log)
     // body
     $body = htmlspecialchars($body);
     $body = preg_replace("#(\r\n|\r|\n)#","<br/>\n",$body);
+    $body = preg_replace("#\t#","　　",$body);
+    $body = preg_replace("#\s#","&nbsp;",$body);
     $body = preg_replace("#\x20#","&nbsp;",$body);
     $body = preg_replace("#((http|https|ftp)\:\/\/[a-zA-Z0-9\.\,\/\#\?\&\=\-\_\~\+\%\;\:\*\!\@\[\]]+)#","<a href='$1'>$1</a>",$body);
     $body = "<!-- body -->\n".$body."\n<!-- end of body-->\n";
