@@ -265,4 +265,16 @@ function m_show_error($msg)
     exit;
 }
 
+function remove_magic_quotes_gpc()
+{
+    if (get_magic_quotes_gpc()) {
+        foreach ($_GET as $key => $val) {
+            $_GET[$key] = stripslashes($val);
+        }
+        foreach ($_POST as $key => $val) {
+            $_POST[$key] = stripslashes($val);
+        }
+    }
+}
+
 ?>
