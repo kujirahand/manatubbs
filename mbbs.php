@@ -19,6 +19,7 @@ if (file_exists("setting-user.ini.php")) {
     require_once "setting-user.ini.php";
 }
 $mbbs["mode"] = $mbbs["priority"];
+remove_magic_quotes_gpc(); // remove
 //----------------------------------------------------------------------
 // データベースの初期化処理
 m_initDB();
