@@ -309,8 +309,10 @@ function m_mode__write()
     if (m_info("mail.to", FALSE)) {
         $to      = m_info("mail.to");
         $subject = m_info("mail.title") . " " . $log_v["title"];
-        $body    =  '[REQUEST_URI] '.$_SERVER['REQUEST_URI'] . "\n" .
-                    '[log_id] $logid'."\n".
+        $body    =  '[REMOTE_HOST] '.$_SERVER['SERVER_HOST']."\n" .
+                    '[REQUEST_URI] '.$_SERVER['REQUEST_URI']."\n" .
+                    "[log_id] {$logid}\n".
+                    "[ip] {$_SERVER['REMOTE_ADDR']}\n".
                     $log_v["body"];
         mb_send_mail($to, $subject, $body);
     }
