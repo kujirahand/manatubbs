@@ -271,7 +271,7 @@ function m_mode__write()
         $logid = m_db_last_insert_rowid();
     }
     // 添付ファイル
-    if (isset($_FILES['attach'])) {
+    if (isset($_FILES['attach']) && $_FILES['attach']['size'] > 0) {
         $file_name = $_FILES['attach']['name'];
         $file_size = $_FILES['attach']['size'];
         $file_temp = $_FILES['attach']['tmp_name'];
