@@ -270,6 +270,30 @@ function m_mode__write()
         }
         $logid = m_db_last_insert_rowid();
     }
+    // 添付ファイル
+    if (isset($_FILES['attach'])) {
+        $file_name = $_FILES['attach']['name'];
+        $file_size = $_FILES['attach']['size'];
+        $file_temp = $_FILES['attach']['tmp_name'];
+        $file_err  = $_FILES['attach']['error'];
+        $name       = $logid."-".urlencode(basename($file_name));
+        $name       = str_replace("%", "", $name);
+        $uploadfile = m_info('upload.dir').$name;
+        $attach     = "(attach:$name)";
+        if (intval(m_info('upload.maxsize')) < $file_size) {
+            m_db_query("rollback");
+            m_show_error("ファイルサイズが大きすぎます。戻るボタンでやり直してください。"); exit;
+        }
+        if (!move_uploaded_file($file_temp, $uploadfile)) {
+            m_db_query("rollback");
+            m_show_error("アップロードに失敗しました。"); exit;
+        }
+        $log_v["body"] = $log_v["body"]."\n".$attach."\n";
+        if (!m_db_update("logs", $log_v, array("logid"=>$logid))) {
+            echo m_db_get_last_error();
+            exit;
+        }
+    }
     m_db_query("commit");
     //
     $limit = time() *60 *60 *24 *30;

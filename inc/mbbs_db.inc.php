@@ -350,6 +350,19 @@ function m_get_log_item($log)
     if ($repos) {
         $body = preg_replace("/\(r(\d+)\)/","(<a href='{$repos}$1'>r$1</a>)",$body);
     }
+    // attach file
+    if (!function_exists("replace_attach_link")) {
+        function replace_attach_link($m) {
+            $attachdir = m_info("upload.dir");
+            if (preg_match("#\.(jpeg|jpg|png|gif)$#", $m[1])) {
+                return "<img src='{$attachdir}{$m[1]}'/>";
+            } else {
+                return "<a href='{$attachdir}{$m[1]}'>(attach:{$m[1]})</a>";
+            }
+        }
+    }
+    $body = preg_replace_callback(
+        "#\(attach\:(\d+[a-zA-Z0-9\-\_\.\+]+?)\)#","replace_attach_link",$body);
     //
     $logidlink = "<span class='id'>(<a href='{$script}?m=log&logid=$logid'>#{$logid}</a>)</span>";
     //

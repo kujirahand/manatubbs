@@ -77,7 +77,7 @@ function m_create_menu(&$menu)
 //----------------------------------------------------------------------
 // form
 //----------------------------------------------------------------------
-function m_build_form($form_array, $method = "get", $button = "送信")
+function m_build_form($form_array, $method = "get", $button = "送信", $flag_upload = FALSE)
 {
     $hidden = "";
     $action = m_info("script_name");
@@ -91,8 +91,9 @@ function m_build_form($form_array, $method = "get", $button = "送信")
     }
     $parts .= "<tr><th></th><td align='right'><input type='submit' value='$button'/></td></tr>\n";
     $parts .= "</table></div>\n";
+    $enctype = ($flag_upload) ? 'enctype="multipart/form-data"' : "";
     return <<< EOS__
-<form action="$action" method="$method">
+<form $enctype action="$action" method="$method">
 {$parts}
 <div>{$hidden}</div>
 </form>
@@ -145,6 +146,9 @@ function m_form_parts($caption, $name, $type, $attr = "", $value = "")
         case "hidden":
             if ($attr_s != "") { $attr_s = " ".$attr_s; }
             $f = "<input type='hidden' name='$name' value='$value'{$attr_s}>";
+            break;
+        case "file":
+            $f = "<input type='file' name='$name' $attr_s />";
             break;
     }
     if ($hint != "") {
@@ -228,15 +232,20 @@ function m_show_form($caption = "", $formmode = "write")
         m_form_parts("編集キー","editkey",  "password",
             array(
                 'size'=>20,
-                'hint'=>'編集する時に必要です',
+                'hint'=>'任意のキーを指定(編集時に使います)',
                 'style'=>'width:200px',
             )),
+        m_form_parts("添付ファイル", "attach",   "file", 
+            array(
+                "hint"=>m_info('upload.format.hint'),
+            )),
+        m_form_parts("", "MAX_FILE_SIZE",  "hidden", array(), m_info("upload.maxsize", 1024*1024)),
         m_form_parts("", "m",   "hidden", array(), $formmode),
         m_form_parts("", "threadid", "hidden", array(), m_param("threadid",0)),
         m_form_parts("", "parentid", "hidden", array(), m_param("parentid",0)),
         m_form_parts("", "logid", "hidden", array(), m_param("logid",0)),
         m_form_parts("", "bot",  "hidden", array(), $mbbs["bot.message"]),
-    ),"post",$caption).
+    ),"post",$caption, TRUE).
     "</div><!-- end of inputform -->\n";
 }
 

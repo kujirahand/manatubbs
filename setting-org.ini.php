@@ -29,6 +29,14 @@ $mbbs["bot.a"]           = "なでしこ";
 $mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
 
 /**
+ * アップロードの設定
+ */
+$mbbs["upload.maxsize"]      = 1024 * 300; // 300KB
+$mbbs["upload.format.hint"]  = "画像ファイル(最大300KB)を添付可能";
+$mbbs["upload.format"]       = "#\.(jpeg|jpg|png|gif)$#";
+$mbbs["upload.dir"]          = "attach/";
+
+/**
  * フィールドの定義
  */
 $mbbs["priority.label"] = "優先度";
