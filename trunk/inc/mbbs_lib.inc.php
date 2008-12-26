@@ -224,7 +224,7 @@ function m_show_form($caption = "", $formmode = "write")
                 'items'=>m_info('status'),
                 'style'=>'width:200px',
             ), $ff_status),
-        m_form_parts("確認キー","bot2", "text",
+        m_form_parts("確認キー","manatubbs_checkbot", "text",
             array(
                 'hint'=>"お手数ですが、いたずら防止のために、".m_info('bot.q'),
                 'style'=>'width:200px',

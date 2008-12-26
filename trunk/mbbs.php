@@ -186,7 +186,7 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
         m_show_error("フォームから書き込んでください。");
     }
     // 日本語 bot チェック
-    if (m_param("bot2") != m_info("bot.a")) {
+    if (m_param("manatubbs_checkbot") != m_info("bot.a")) {
         m_show_error("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
     }
     // フィールドチェック
@@ -305,6 +305,15 @@ function m_mode__write()
     $script = m_info("script_name");
     $msg = urlencode("書き込みが完了しました。");
     header("Location: $script?logid=$logid&m=log&msg=$msg");
+    // sendmail
+    if (m_info("mail.to", FALSE)) {
+        $to      = m_info("mail.to");
+        $subject = m_info("mail.title") . " " . $log_v["title"];
+        $body    =  '[REQUEST_URI] '.$_SERVER['REQUEST_URI'] . "\n" .
+                    '[log_id] $logid'."\n".
+                    $log_v["body"];
+        mb_send_mail($to, $subject, $body);
+    }
 }
 
 function m_mode__editlog()
