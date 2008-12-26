@@ -42,6 +42,7 @@ $mbbs["upload.dir"]          = "attach/";
 $mbbs["mail.to"]    = "";
 $mbbs["mail.cc"]    = "";
 $mbbs["mail.bcc"]   = "";
+$mbbs["mail.from"]  = "";
 $mbbs["mail.title"] = "[manatubbs]";
 
 /**
