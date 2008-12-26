@@ -308,13 +308,12 @@ function m_mode__write()
     // sendmail
     if (m_info("mail.to", FALSE)) {
         $to      = m_info("mail.to");
-        $subject = m_info("mail.title") . " " . $log_v["title"];
-        $body    =  '[SERVER_NAME] '.$_SERVER['SERVER_NAME']."\n" .
-                    '[REQUEST_URI] '.$_SERVER['REQUEST_URI']."\n" .
-                    "[log_id] {$logid}\n".
-                    "[ip] {$_SERVER['REMOTE_ADDR']}\n".
+        $subject = m_info("mail.title") . "($logid)" . $log_v["title"];
+        $body    =  
                     m_info("TITLE")."への書き込み:\n".
-                    $log_v["body"];
+                    '[URL] http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']."\n" .
+                    $log_v["body"]."\n".
+                    "[ip] {$_SERVER['REMOTE_ADDR']}\n";
         mb_send_mail($to, $subject, $body);
     }
 }
