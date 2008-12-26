@@ -40,6 +40,8 @@ $mbbs["upload.dir"]          = "attach/";
  * メール通知設定
  */
 $mbbs["mail.to"]    = "";
+$mbbs["mail.cc"]    = "";
+$mbbs["mail.bcc"]   = "";
 $mbbs["mail.title"] = "[manatubbs]";
 
 /**
