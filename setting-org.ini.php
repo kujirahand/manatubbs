@@ -37,6 +37,12 @@ $mbbs["upload.format"]       = "#\.(jpeg|jpg|png|gif)$#";
 $mbbs["upload.dir"]          = "attach/";
 
 /**
+ * メール通知設定
+ */
+$mbbs["mail.to"]    = "";
+$mbbs["mail.title"] = "[manatubbs]";
+
+/**
  * フィールドの定義
  */
 $mbbs["priority.label"] = "優先度";

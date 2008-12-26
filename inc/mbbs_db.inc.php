@@ -269,11 +269,14 @@ function m_show_thread()
     $sql = "SELECT * FROM threads WHERE threadid=$threadid LIMIT 1";
     $r = m_db_query($sql);
     if (!$r) {
-        m_show_error("スレッド id=$threadid はありません。");
+        m_show_error("スレッド id=$threadid はありません。"); return;
     }
     // get first log
     $sql = "SELECT * FROM logs WHERE threadid=$threadid ORDER BY logid LIMIT 1";
     $topr = m_db_query($sql);
+    if (!$topr) {
+        m_show_error("スレッド id=$threadid はありません。"); return;
+    }
     $logid = $topr[0]["logid"];
     $top = m_get_log_item($topr[0]);
     
@@ -295,9 +298,11 @@ function m_show_thread()
     // -----------------------------------------------------------------
     // logs
     // -----------------------------------------------------------------
-    $items = array_reverse($items);
-    foreach ($items as $log) {
-        $res .= m_get_log_item($log);
+    if (is_array($items)){
+        $items = array_reverse($items);
+        foreach ($items as $log) {
+            $res .= m_get_log_item($log);
+        }
     }
     // トップに最新のステータスを表示
     $_POST["mode"]   = $r[0]["mode"];
@@ -318,6 +323,7 @@ EOS__;
 
 function m_get_log_item($log)
 {
+    if (empty($log)) return;
     extract($log);
     $script = m_info("script_name");
     $mtime_s = "<span class='date'>(".date("Y-m-d h:i", $log["mtime"]).")</span>";
