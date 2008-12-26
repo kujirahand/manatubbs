@@ -284,6 +284,10 @@ function m_mode__write()
             m_db_query("rollback");
             m_show_error("ファイルサイズが大きすぎます。戻るボタンでやり直してください。"); exit;
         }
+        if (!preg_match(m_info("upload.format"), $file_name)) {
+            m_db_query("rollback");
+            m_show_error("アップロードできない形式です。"); exit;
+        }
         if (!move_uploaded_file($file_temp, $uploadfile)) {
             m_db_query("rollback");
             m_show_error("アップロードに失敗しました。"); exit;
