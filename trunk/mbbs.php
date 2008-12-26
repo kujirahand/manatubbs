@@ -314,7 +314,14 @@ function m_mode__write()
                     '[URL] http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']."\n" .
                     $log_v["body"]."\n".
                     "[ip] {$_SERVER['REMOTE_ADDR']}\n";
-        mb_send_mail($to, $subject, $body);
+        $from = m_info("mail.from","");
+        $cc   = m_info("mail.cc","");
+        $bcc  = m_info("mail.bcc","");
+        $header = "From:$from
+Cc:$cc
+Bcc:$bcc
+";
+        mb_send_mail($to, $subject, $body,$header);
     }
 }
 
