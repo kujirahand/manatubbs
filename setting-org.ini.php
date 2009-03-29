@@ -24,9 +24,14 @@ $mbbs["tree.perpage"]    = 8;
 $mbbs["script_name"]     = "mbbs.php";
 $mbbs["bot.message"]     = "棚から牡丹餅";
 $mbbs["adminpass"]       = "xxx";
+$mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
+
+/**
+ * スパム対策
+ */
 $mbbs["bot.q"]           = "「真夏」の読み方を記入してください。";
 $mbbs["bot.a"]           = "まなつ";
-$mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
+$mbbs["bot.enabled"]     = TRUE;
 
 /**
  * アップロードの設定

@@ -186,8 +186,10 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
         m_show_error("フォームから書き込んでください。");
     }
     // 日本語 bot チェック
-    if (m_param("manatubbs_checkbot") != m_info("bot.a")) {
-        m_show_error("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
+    if (m_info('bot.enabled')) {
+        if (m_param("manatubbs_checkbot") != m_info("bot.a")) {
+            m_show_error("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
+        }
     }
     // フィールドチェック
     if (m_param('name','') == "") {
@@ -292,6 +294,9 @@ function m_mode__write()
             m_db_query("rollback");
             m_show_error("アップロードに失敗しました。"); exit;
         }
+        // 権限を読み込み可能に変更する ---
+        chmod($uploadfile,0644);
+        // ---
         $log_v["body"] = $log_v["body"]."\n".$attach."\n";
         if (!m_db_update("logs", $log_v, array("logid"=>$logid))) {
             echo m_db_get_last_error();

@@ -207,45 +207,49 @@ function m_show_form($caption = "", $formmode = "write")
     
     $caption_ = preg_replace_callback("|\#(\d+)|","m_logid_embedLink", $caption);
     
+    // form items
+    $items = array();
+    $items[] = m_form_parts("名前",    "name",     "text",     array("style"=>"width:70%"), $ff_name);
+    $items[] = m_form_parts("タイトル","title",    "text",     array("style"=>"width:70%"), $ff_title);
+    $items[] = m_form_parts("本文",    "body",     "textarea", array("style"=>"width:90%;height:130px;"), $ff_body);
+    $items[] = m_form_parts(m_info("priority.label"),    "mode",     "select",
+                array(
+                    'items'=>m_info('mode'),
+                    'style'=>'width:200px',
+                ), $ff_mode);
+    $items[] = m_form_parts(m_info("status.label"),    "status",   "select",
+                array(
+                    'items'=>m_info('status'),
+                    'style'=>'width:200px',
+                ), $ff_status);
+    if (m_info('bot.enabled')) {
+        $items[] = m_form_parts("確認キー","manatubbs_checkbot", "text",
+                array(
+                    'hint'=>"お手数ですが、いたずら防止のために、".m_info('bot.q'),
+                    'style'=>'width:200px',
+                ), "");
+    }
+    $items[] = m_form_parts("編集キー","editkey",  "password",
+                array(
+                    'size'=>20,
+                    'hint'=>'任意のキーを指定(編集時に使います)',
+                    'style'=>'width:200px',
+                ));
+    $items[] = m_form_parts("添付ファイル", "attach",   "file", 
+                array(
+                    "hint"=>m_info('upload.format.hint'),
+                ));
+    $items[] = m_form_parts("", "MAX_FILE_SIZE",  "hidden", array(), m_info("upload.maxsize", 1024*1024));
+    $items[] = m_form_parts("", "m",   "hidden", array(), $formmode);
+    $items[] = m_form_parts("", "threadid", "hidden", array(), m_param("threadid",0));
+    $items[] = m_form_parts("", "parentid", "hidden", array(), m_param("parentid",0));
+    $items[] = m_form_parts("", "logid", "hidden", array(), m_param("logid",0));
+    $items[] = m_form_parts("", "bot",  "hidden", array(), $mbbs["bot.message"]);
+    
     return
     "<div class='inputform'>\n".
     "<div><a name='inputform'>→</a>{$caption_}:</div><br/>\n".
-    m_build_form(array(
-        m_form_parts("名前",    "name",     "text",     array("size"=>50), $ff_name),
-        m_form_parts("タイトル","title",    "text",     array("size"=>50), $ff_title),
-        m_form_parts("本文",    "body",     "textarea", array("rows"=>6,"cols"=>80), $ff_body),
-        m_form_parts(m_info("priority.label"),    "mode",     "select",
-            array(
-                'items'=>m_info('mode'),
-                'style'=>'width:200px',
-            ), $ff_mode),
-        m_form_parts(m_info("status.label"),    "status",   "select",
-            array(
-                'items'=>m_info('status'),
-                'style'=>'width:200px',
-            ), $ff_status),
-        m_form_parts("確認キー","manatubbs_checkbot", "text",
-            array(
-                'hint'=>"お手数ですが、いたずら防止のために、".m_info('bot.q'),
-                'style'=>'width:200px',
-            ), ""),
-        m_form_parts("編集キー","editkey",  "password",
-            array(
-                'size'=>20,
-                'hint'=>'任意のキーを指定(編集時に使います)',
-                'style'=>'width:200px',
-            )),
-        m_form_parts("添付ファイル", "attach",   "file", 
-            array(
-                "hint"=>m_info('upload.format.hint'),
-            )),
-        m_form_parts("", "MAX_FILE_SIZE",  "hidden", array(), m_info("upload.maxsize", 1024*1024)),
-        m_form_parts("", "m",   "hidden", array(), $formmode),
-        m_form_parts("", "threadid", "hidden", array(), m_param("threadid",0)),
-        m_form_parts("", "parentid", "hidden", array(), m_param("parentid",0)),
-        m_form_parts("", "logid", "hidden", array(), m_param("logid",0)),
-        m_form_parts("", "bot",  "hidden", array(), $mbbs["bot.message"]),
-    ),"post",$caption, TRUE).
+    m_build_form($items, "post", $caption, TRUE).
     "</div><!-- end of inputform -->\n";
 }
 
