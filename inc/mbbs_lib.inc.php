@@ -81,7 +81,7 @@ function m_build_form($form_array, $method = "get", $button = "送信", $flag_up
 {
     $hidden = "";
     $action = m_info("script_name");
-    $parts = "<div class='inputformtable'><table>\n";
+    $parts = "<div class='inputformtable'><table width='100%'>\n";
     foreach ($form_array as $row) {
         if (substr($row, 0, 20) == "<input type='hidden'") {
             $hidden .= $row;
@@ -158,7 +158,7 @@ function m_form_parts($caption, $name, $type, $attr = "", $value = "")
     if ($type == "hidden") {
         return $f;
     } else {
-        return "<tr><th>{$caption}</th><td>{$f}{$hint}</td></tr>";
+        return "<tr><th width='20%'>{$caption}</th><td width='80%'>{$f}{$hint}</td></tr>";
     }
 }
 
@@ -238,7 +238,6 @@ function m_show_form($caption = "", $formmode = "write")
     $items[] = m_form_parts("添付ファイル", "attach",   "file", 
                 array(
                     "hint"=>m_info('upload.format.hint'),
-                    'style'=>'width:200px',
                 ));
     $items[] = m_form_parts("", "MAX_FILE_SIZE",  "hidden", array(), m_info("upload.maxsize", 1024*1024));
     $items[] = m_form_parts("", "m",   "hidden", array(), $formmode);
