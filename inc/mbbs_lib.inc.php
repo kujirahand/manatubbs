@@ -232,12 +232,13 @@ function m_show_form($caption = "", $formmode = "write")
     $items[] = m_form_parts("編集キー","editkey",  "password",
                 array(
                     'size'=>20,
-                    'hint'=>'任意のキーを指定(編集時に使います)',
+                    'hint'=>'編集時に使うキーを入力(省略可能)',
                     'style'=>'width:200px',
                 ));
     $items[] = m_form_parts("添付ファイル", "attach",   "file", 
                 array(
                     "hint"=>m_info('upload.format.hint'),
+                    'style'=>'width:200px',
                 ));
     $items[] = m_form_parts("", "MAX_FILE_SIZE",  "hidden", array(), m_info("upload.maxsize", 1024*1024));
     $items[] = m_form_parts("", "m",   "hidden", array(), $formmode);
