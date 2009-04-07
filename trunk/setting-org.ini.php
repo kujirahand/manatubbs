@@ -18,8 +18,8 @@ $mbbs["db.name"] = "db/manatubbs.db";
  */
 $mbbs["firstview"]       = "threads"; // はじめに表示するページ
 #$mbbs["firstview"]       = "tree"; // はじめに表示するページ
-$mbbs["threads.perpage"] = 20;
-$mbbs["logs.perpage"]    = 10;
+$mbbs["threads.perpage"] = 50;
+$mbbs["logs.perpage"]    = 20;
 $mbbs["tree.perpage"]    = 8;
 $mbbs["script_name"]     = "mbbs.php";
 $mbbs["bot.message"]     = "棚から牡丹餅";
@@ -67,14 +67,14 @@ $mbbs["status"] = array(
     '未処理','調査中','修正中','確認待ち','解決','---','アイデア','感想','告知'
 );
 $mbbs["status.color"] = array(
-    '解決' => array('bgcolor' => '#f0f0f0', 'color' => '#aaaaaa'),
+    '解決' => array('bgcolor' => '#f0f0f0', 'color' => '#888888', 'style' => 'text-decoration:line-through'),
 );
 
 $mbbs["body.template"] = <<<EOS__
 【症状】どのような症状、現象か？
 【再現方法】サンプルソース、再現手順など
 【要望】どのような解決が望ましいか？
-【バージョン】なでしこのバージョン
+【バージョン】確認したバージョン
 【その他】
 EOS__;
 

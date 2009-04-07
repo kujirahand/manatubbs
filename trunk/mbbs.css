@@ -182,6 +182,7 @@ itemnode {
     border-collapse: collapse;
     padding: 6px;
     margin: 0px;
+    font-size: 0.7em;
 }
 
 .thread table th {

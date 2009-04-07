@@ -198,9 +198,11 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
     if (m_param('title','') == "") {
         m_show_error("タイトルが未入力です。[戻る]キーで再入力ください。");
     }
+    /*
     if (m_param('editkey','') == "") {
         m_show_error("編集キーが未入力です。[戻る]キーで再入力ください。");
     }
+    */
     // threads & logs
     $thread_keys    = array('mode','status');
     $log_keys       = array('threadid','parentid','title','body','name','ip','editkey','mode','status');
@@ -316,7 +318,9 @@ function m_mode__write()
         $subject = m_info("mail.title") . "($logid)" . $log_v["title"];
         $body    =  
                     m_info("TITLE")."への書き込み:\n".
-                    '[URL] http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']."\n" .
+                    '[URL] http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'].
+                    "?logid={$logid}&m=log\n".
+                    $log_v["name"]." さんより\n".
                     $log_v["body"]."\n".
                     "[ip] {$_SERVER['REMOTE_ADDR']}\n";
         $from = m_info("mail.from","");
@@ -326,7 +330,7 @@ function m_mode__write()
 Cc:$cc
 Bcc:$bcc
 ";
-        mb_send_mail($to, $subject, $body,$header);
+        @mb_send_mail($to, $subject, $body,$header);
     }
 }
 

@@ -198,13 +198,15 @@ EOS__;
         if (isset($pri_color[$priority])) {
             $color   = $pri_color[$priority]["color"];
             $bgcolor = $pri_color[$priority]["bgcolor"];
+            $style   = isset($pri_color[$priority]["style"]) ? $pri_color[$priority]["style"] : '';
         }
         if (isset($sta_color[$status])) {
             $color   = $sta_color[$status]["color"];
             $bgcolor = $sta_color[$status]["bgcolor"];
+            $style   = isset($sta_color[$status]["style"]) ? $sta_color[$status]["style"] : '';
         }
         if ($color != "") {
-            $style = " style='background-color:$bgcolor;color:$color;'";
+            $style = " style='background-color:$bgcolor;color:$color;$style;'";
         }
         //
         $titlelink = "<a href='{$script}?m=thread&threadid=$threadid'>$title</a>";
@@ -342,7 +344,6 @@ function m_get_log_item($log)
     $body = htmlspecialchars($body);
     $body = preg_replace("#(\r\n|\r|\n)#","<br/>\n",$body);
     $body = preg_replace("#\t#","　　",$body);
-    $body = preg_replace("#\s#","&nbsp;",$body);
     $body = preg_replace("#\x20#","&nbsp;",$body);
     $body = preg_replace("#((http|https|ftp)\:\/\/[a-zA-Z0-9\.\,\/\#\?\&\=\-\_\~\+\%\;\:\*\!\@\[\]]+)#","<a href='$1'>$1</a>",$body);
     $body = "<!-- body -->\n".$body."\n<!-- end of body-->\n";
@@ -383,7 +384,7 @@ function m_get_log_item($log)
         <span class="hint">/$mode $status</span>
     </div>
     <div class="body">
-        $body
+        <code>$body</code>
         <div class="editlink"><a href="{$editlink}">編集</a></div>
     </div>
 </div>
