@@ -1,28 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
 <?php
 // $logs
 global $mbbs;
 extract($mbbs);
-
-echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 ?>
 <rss version="2.0"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:content="http://purl.org/rss/1.0/modules/content/"
     xml:lang="ja">
     <channel>
-        <title><?=$TITLE?></title>
-        <link><?=htmlspecialchars($linkurl)?></link>
-        <description><?=$DESCRIPTION?></description>
-        <dc:creator><?=$AUTHOR?></dc:creator>
-        <pubDate><?=date("r", time())?></pubDate>
+        <title><?php echo $TITLE?></title>
+        <link><?php echo htmlspecialchars($linkurl)?></link>
+        <description><?php echo $DESCRIPTION?></description>
+        <dc:creator><?php echo $AUTHOR?></dc:creator>
+        <pubDate><?php echo date("r", time())?></pubDate>
         <language>ja</language>
-
 <?php
 /*
         <image>
-            <url><?=$logourl?></url>
-            <title><?=$TITLE?></title>
-            <link><?=$linkurl?></link>
+            <url><?php echo $logourl?></url>
+            <title><?php echo $TITLE?></title>
+            <link><?php echo $linkurl?></link>
         </image>
 */
 foreach ($logs as $log) {
