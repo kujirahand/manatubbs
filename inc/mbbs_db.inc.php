@@ -22,14 +22,14 @@ function m_initDB()
     if (!file_exists($dbfile)) {
         m_db_createTable($dbfile);
     }
-    $h = sqlite_open($dbfile, 0604);
+    $h = @sqlite_open($dbfile, 0604);
     if (!$h) { m_error_dbopen(); }
     $mbbs["db.handle"] = &$h;
 }
 
 function m_db_createTable($dbfile)
 {
-    $h = sqlite_open($dbfile, 0604);
+    $h = @sqlite_open($dbfile, 0604);
     if (!$h) { m_error_dbopen(); }
     $query  = file_get_contents(FILE_INIT_SQL);
     $result = sqlite_exec($h, $query);

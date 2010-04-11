@@ -453,8 +453,8 @@ function m_mode__search2()
         $title = htmlspecialchars($log["title"]);
         $name  = htmlspecialchars($log["name"]);
         $link = "./{$script}?m=log&logid={$logid}";
-        $ctime = date("Y-m-d", $logid["ctime"]);
-        $date = "<span class='date'>({$ctime})</span>";
+        $mtime = date("Y-m-d", $log["mtime"]);
+        $date = "<span class='date'>({$mtime})</span>";
         $body .= "<div class='node'>(<a href='{$link}'>#{$logid}</a>) <a href='{$link}'>$title</a> / $name $date</div>";
     }
     if (count($r) == 0) {
