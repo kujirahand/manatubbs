@@ -12,6 +12,7 @@ $mbbs["db.handle"] = NULL;
 // ライブラリの取り込み
 require_once "inc/mbbs_lib.inc.php";
 require_once "inc/mbbs_db.inc.php";
+require_once "inc/mbbs_form.inc.php";
 //----------------------------------------------------------------------
 // 初期設定の取り込み
 require_once "setting-org.ini.php";
@@ -56,12 +57,19 @@ function m_mode__all()
 
 function m_mode__threads()
 {
-    __m_mode__show_threads("スレッド一覧を表示:", false, "threads");
+	$rlink = m_link(array("m=mikaiketu"));
+    __m_mode__show_threads(
+    	"スレッド一覧を表示中(<a href='$rlink'>→未解決のみ表示</a>):", 
+    	false, "threads");
 }
 
 function m_mode__mikaiketu()
 {
-    __m_mode__show_threads("未解決のタスクを表示:","status!='解決'","mikaiketu");
+	$rlink = m_link(array("m=threads"));
+	__m_mode__show_threads(
+		"未解決のタスクを表示中(<a href='$rlink'>→全て表示</a>):",
+		"status!='解決'",
+		"mikaiketu");
 }
 
 function m_mode__kinkyu()
@@ -179,8 +187,10 @@ function m_mode__edit()
 
 function m_mode__write_checkParam(&$thread_v, &$log_v)
 {
+	//--------------------
     // 簡易 bot チェック
-    $bot_message = m_info('bot.message');
+	//--------------------
+	$bot_message = m_info('bot.message');
     $bot_param   = m_param('bot');
     if ($bot_param != $bot_message) {
         m_show_error("フォームから書き込んでください。");
@@ -191,32 +201,42 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
             m_show_error("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
         }
     }
+	//--------------------
     // フィールドチェック
-    if (m_param('name','') == "") {
+	//--------------------
+    if (m_param('mbbs_user_name','') == "") {
         m_show_error("名前が未入力です。[戻る]キーで再入力ください。");
     }
-    if (m_param('title','') == "") {
+    if (m_param('mbbs_user_title','') == "") {
         m_show_error("タイトルが未入力です。[戻る]キーで再入力ください。");
     }
     /*
-    if (m_param('editkey','') == "") {
+    if (m_param('mbbs_user_editkey','') == "") {
         m_show_error("編集キーが未入力です。[戻る]キーで再入力ください。");
     }
     */
+    //--------------------
     // threads & logs
+    //--------------------
     $thread_keys    = array('mode','status');
     $log_keys       = array('threadid','parentid','title','body','name','ip','editkey','mode','status');
     foreach ($thread_keys as $key) {
-        $v = m_param($key,"");
+        $v = m_param($key, null);
+        if ($v == null ) {
+        	$v = m_param("mbbs_user_{$key}", "");
+        }
         $thread_v[$key] = $v;
     }
     foreach ($log_keys as $key) {
-        $v = m_param($key,"");
+        $v = m_param($key, null);
+        if ($v == null ) {
+        	$v = m_param("mbbs_user_{$key}", "");
+        }
         $log_v[$key] = $v;
     }
     $log_v['threadid']  = intval($log_v['threadid']);
     $log_v['parentid']  = intval($log_v['parentid']);
-    $log_v['ip']        = $_SEVER['SERVER_ADDR'];
+    $log_v['ip']        = $_SEVER['SERVER_ADDR'];   
 }
 
 function m_mode__write_strim(&$title, &$name)
@@ -237,7 +257,7 @@ function m_mode__write()
     $name  = $log_v["name"];
     m_mode__write_strim($title, $name);
     //
-    if (m_param("threadid", 0) == 0) { // new
+    if (intval(m_param("threadid", 0)) == 0) { // new thread
         // set time
         $log_v["ctime"] = $log_v["mtime"] = $thread_v["ctime"] = $thread_v["mtime"] = time();
         // threads
@@ -253,7 +273,7 @@ function m_mode__write()
             exit;
         }
         $logid = m_db_last_insert_rowid();
-    } else { // reply
+    } else { // reply to thread
         $log_v["mtime"] = $log_v["ctime"] = $thread_v["mtime"] = time();
         $threadid = intval(m_param("threadid"));
         // threads
@@ -261,12 +281,18 @@ function m_mode__write()
         if (!$old) {
             m_show_error("threadid=$threadid は存在しません。"); exit;
         }
+        // 返信カウンタ数を1増やす
         $old = $old[0];
         $thread_v["count"] = intval($old["count"]) + 1;
+        // 最後の返信のタイトルを記録する
+        $a = explode("-->", $old["title"], 2);
+        $old["title"] = trim($a[0]);
+        $thread_v["title"] = $old["title"]." --> "."{$log_v['title']}({$log_v['name']})";
         if (!m_db_update("threads", $thread_v,array("threadid"=>$threadid))) {
             echo m_db_get_last_error();
             exit;
         }
+        
         $log_v["threadid"] = $threadid;
         if (!m_db_insert("logs", $log_v)) {
             echo m_db_get_last_error();
@@ -306,12 +332,13 @@ function m_mode__write()
         }
     }
     m_db_query("commit");
-    //
-    $limit = time() *60 *60 *24 *30;
-    setcookie("name",$log_v["name"],$limit);
+    mbbs_setcookie($log_v);
+    
     $script = m_info("script_name");
     $msg = urlencode("書き込みが完了しました。");
-    header("Location: $script?logid=$logid&m=log&msg=$msg");
+    $jump = "$script?logid=$logid&m=log&msg=$msg";
+    header("Location: $jump");
+    echo "<body><a href='$jump'>次へ</a></body>";
     // sendmail
     if (m_info("mail.to", FALSE)) {
         $to      = m_info("mail.to");
@@ -332,6 +359,16 @@ Bcc:$bcc
 ";
         @mb_send_mail($to, $subject, $body,$header);
     }
+}
+
+function mbbs_setcookie($log_v)
+{
+    // cookie
+    $limit = time() * (60*60*24*90); // 90 day
+    $limit_short = time() * (60*60*24*30);
+    setcookie("mbbs_name",		$log_v["name"], $limit);
+    setcookie("mbbs_editkey",	'[sha1]'.sha1($log_v["editkey"]), $limit); // ハッシュを保存
+    setcookie("mbbs_botkey",	m_param("manatubbs_checkbot",""), $limit_short);
 }
 
 function m_mode__editlog()
@@ -359,8 +396,10 @@ function m_mode__editlog()
     $log_v["threadid"] = $oldlog["threadid"];
     //
     // パスワードのチェック
-    $pass = m_param("editkey","");
-    if ($pass != $oldlog["editkey"] && $pass != m_info("adminpass")) {
+    $pass = m_param("mbbs_user_editkey","");
+    $pass_user = m_password_to_sha($pass);
+    $pass_db   = m_password_to_sha($oldlog["editkey"]);
+    if ($pass_user != $pass_db && $pass != m_info("adminpass")) {
         m_show_error("パスワードが違います。");
     }
     //
@@ -368,7 +407,7 @@ function m_mode__editlog()
     // set time
     $log_v["ctime"] = $oldlog["ctime"];
     $log_v["mtime"] = $thread_v["mtime"] = time();
-    $log_v["editkey"] = $oldlog["editkey"]; // adminpass で更新することを考慮
+    $log_v["editkey"] = $oldlog["editkey"]; // adminpass で更新したことを考慮
     //
     // 簡略版を作っておく
     $title = $log_v["title"];
@@ -377,6 +416,8 @@ function m_mode__editlog()
     if ($log_v["parentid"] == 0) {
         $thread_v["title"] = "$title ($name)";
     }
+    // パスワードをハッシュにして保存
+    $log_v["editkey"] = m_password_to_sha($log_v["editkey"]);
     //
     if (!m_db_update("logs", $log_v, array("logid"=>$logid))) {
         m_show_error("DBへの書き込みに失敗。");
@@ -386,8 +427,7 @@ function m_mode__editlog()
     }
     m_db_query("commit");
     //
-    $limit = time() *60 *60 *24 *30;
-    setcookie("name",$log_v["name"],$limit);
+    mbbs_setcookie($log_v);
     $script = m_info("script_name");
     $msg = urlencode("書き込みが完了しました。");
     header("Location: $script?logid=$logid&m=log&msg=$msg");
@@ -405,7 +445,7 @@ function m_mode__rss()
     $linkurl = "http://".$_SERVER["HTTP_HOST"]. $_SERVER["SCRIPT_NAME"];
     $script = m_info("script_name");
     $logourl = preg_replace("#{$script}#","logo.png",$linkurl);
-    include "tpl/rss.tpl.php";
+    require_once "tpl/rss.tpl.php";
 }
 
 function m_mode__search()

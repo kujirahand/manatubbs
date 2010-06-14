@@ -350,8 +350,8 @@ function m_get_log_item($log)
     // body replyto
     $body = preg_replace("#\n(\&gt\;[^\n]+)#","\n<span class='reply'>$1</span>",$body);
     // thread link
-    $body = preg_replace("/\(\#(\d+)\)/","(<a href='{$script}?m=log&logid=$1'>#$1</a>)",$body);
-    $body = preg_replace("/\(\@(\d+)\)/","(<a href='{$script}?m=thread&threadid=$1'>@$1</a>)",$body);
+    $body = preg_replace("/\(\#(\d+)\)/","(<a href='{$script}?m=log&amp;logid=$1'>#$1</a>)",$body);
+    $body = preg_replace("/\(\@(\d+)\)/","(<a href='{$script}?m=thread&amp;threadid=$1'>@$1</a>)",$body);
     // repos link
     $repos = m_info("repos.link",false);
     if ($repos) {
@@ -371,7 +371,7 @@ function m_get_log_item($log)
     $body = preg_replace_callback(
         "#\(attach\:(\d+[a-zA-Z0-9\-\_\.\+]+?)\)#","replace_attach_link",$body);
     //
-    $logidlink = "<span class='id'>(<a href='{$script}?m=log&logid=$logid'>#{$logid}</a>)</span>";
+    $logidlink = "<span class='id'>(<a href='{$script}?m=log&amp;logid=$logid'>#{$logid}</a>)</span>";
     //
     $mode   = htmlspecialchars($mode);
     $status = htmlspecialchars($status);

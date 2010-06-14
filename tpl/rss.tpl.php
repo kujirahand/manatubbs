@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
 <?php
 // $logs
 global $mbbs;
 extract($mbbs);
+echo <<< EOS
+<?xml version="1.0" encoding="utf-8"?>
+EOS;
 ?>
 <rss version="2.0"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
