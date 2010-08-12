@@ -221,6 +221,41 @@ EOS__;
     return $res;
 }
 
+function m_show_all_text($title = "", $where_str = FALSE, $m_mode = "all")
+{
+    // query all
+    $page   = 0;
+    $per    = m_info("threads.perpage");
+    $offset = $per * $page;
+    $limit  = $per + 1;
+    $res    = "";
+    $priority_label = m_info("priority.label");
+    $status_label   = m_info("status.label");
+    $pri_color      = m_info("priority.color");
+    $sta_color      = m_info("status.color");
+    // query threads
+    $pager = "";
+    $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
+    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT {$limit} OFFSET {$offset}");
+    if (count($r) == 0) {
+        return "* $title : ありません。\n";
+    }
+    $res .= "* $title\n";
+    foreach ($r as $row) {
+        $threadid = $row["threadid"];
+        $title = ($row["title"]);
+        $priority = ($row["mode"]);
+        $status = ($row["status"]);
+        $count = intval($row["count"]);
+        $date = m_date($row["mtime"]);
+        $titlelink = "<a href='{$script}?m=thread&threadid=$threadid'>$title</a>";
+        $idlink = "<a href='{$script}?m=thread&threadid=$threadid'>@{$threadid}</a>";
+        $res .= "- @{$threadid} $title\n";
+    }
+    return $res;
+}
+
+
 function m_show_tree()
 {
     // query all

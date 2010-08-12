@@ -11,7 +11,8 @@ $mbbs["AUTHOR"]       = "なでしこユーザー";
 /**
  * データベースの設定
  */
-$mbbs["db.name"] = "db/manatubbs.db";
+$root = dirname(__FILE__);
+$mbbs["db.name"] = "{$root}/db/manatubbs.db";
 
 /**
  * 各種の初期値
