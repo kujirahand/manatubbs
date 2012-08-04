@@ -8,7 +8,7 @@ define("FILE_INIT_SQL","db/sql.txt");
 function m_error_dbopen()
 {
     echo "DATABASE OPEN ERROR!!<br/>\n";
-    echo "DBディレクトリのアクセス権限を0705に設定してください。";
+    echo "DBディレクトリのアクセス権限を適切な値に設定してください。";
     exit;
 }
 
@@ -363,7 +363,7 @@ function m_get_log_item($log)
     if (empty($log)) return;
     extract($log);
     $script = m_info("script_name");
-    $mtime_s = "<span class='date'>(".date("Y-m-d h:i", $log["mtime"]).")</span>";
+    $mtime_s = "<span class='date'>(".date("Y-m-d H:i", $log["mtime"]).")</span>";
     $parentlink = "*";
     if ($parentid > 0) {
         $link = m_link(array("m=log", "logid={$parentid}"));
@@ -489,7 +489,7 @@ function m_get_index_title__($level, $items, $no)
     
     $mode = htmlspecialchars($mode);
     $status = htmlspecialchars($status);
-    $mtime = date("Y-m-d h:i", $mtime);
+    $mtime = date("Y-m-d H:i", $mtime);
     $mtime = "<span class='date'>({$mtime})</span>";
     $title = mb_strimwidth($title, 0, 40, '..');
     $title = htmlspecialchars($title);

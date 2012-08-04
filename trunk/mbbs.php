@@ -3,6 +3,7 @@
 // manatubbs
 //----------------------------------------------------------------------
 mb_internal_encoding("UTF-8");
+date_default_timezone_set("Asia/Tokyo");
 header("Content-Type: text/html; charset=UTF-8");
 // 変数の初期化
 global $mbbs;
@@ -364,10 +365,10 @@ Bcc:$bcc
 function mbbs_setcookie($log_v)
 {
     // cookie
-    $limit = time() * (60*60*24*90); // 90 day
-    $limit_short = time() * (60*60*24*30);
+    $limit = time() + (60*60*24*90); // 90 day
+    $limit_short = time() + (60*60*24*30); // 30 day
     setcookie("mbbs_name",		$log_v["name"], $limit);
-    setcookie("mbbs_editkey",	'[sha1]'.sha1($log_v["editkey"]), $limit); // ハッシュを保存
+    setcookie("mbbs_editkey",	$log_v["editkey"], $limit); // ハッシュを保存
     setcookie("mbbs_botkey",	m_param("manatubbs_checkbot",""), $limit_short);
 }
 
