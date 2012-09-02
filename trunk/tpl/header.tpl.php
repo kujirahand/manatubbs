@@ -14,7 +14,10 @@ $linkurl = "http://".$_SERVER["HTTP_HOST"]. $_SERVER["SCRIPT_NAME"];
 <body>
 <!-- header -->
 <div id="header">
-<?php echo m_create_menu(m_info("menubar")); ?>
+<?php 
+$mbar = m_info("menubar");
+echo m_create_menu($mbar); 
+?>
 </div>
 <!-- title -->
 <div id="title"><h1><a href="<?php echo $script_name?>"><?php echo $TITLE?></a></h1></div>
