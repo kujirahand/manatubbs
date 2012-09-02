@@ -360,6 +360,7 @@ EOS__;
 
 function m_get_log_item($log)
 {
+    $res = "";
     if (empty($log)) return;
     extract($log);
     $script = m_info("script_name");
@@ -447,7 +448,7 @@ function m_show_log()
     $_POST["threadid"] = $threadid;
     $_POST["title"]    = "RE:".$cur_log["title"];
     $_POST["mode"]     = $r[0]["mode"];
-    $_POST["stat"]     = $r[0]["stat"];
+    $_POST["stat"]     = isset($r[0]["stat"]) ? $r[0]["stat"] : "";
     $_POST["parentid"] = $r[0]["logid"];
     $res .= m_get_index($threadid, $items);
     return $res;
@@ -502,7 +503,7 @@ function m_get_index_title__($level, $items, $no)
     $s = join("",$head_a) . $tree . $line . join("",$foot_a);
     
     $s .= "\n";
-    if ($log["children"]) {
+    if (isset($log["children"]) && $log["children"]) {
         $len = count($log["children"]);
         for ($i = 0; $i < $len; $i++) {
             $row = $log["children"][$i];
