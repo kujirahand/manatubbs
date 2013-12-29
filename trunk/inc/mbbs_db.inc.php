@@ -301,7 +301,8 @@ function m_show_thread()
     $perpage  = m_info("logs.perpage");
     $offset = $page * $perpage;
     $limit = $perpage + 1;
-    
+    $res = ""; 
+   
     // check thread
     $sql = "SELECT * FROM threads WHERE threadid=$threadid LIMIT 1";
     $r = m_db_query($sql);
@@ -448,7 +449,7 @@ function m_show_log()
     $_POST["threadid"] = $threadid;
     $_POST["title"]    = "RE:".$cur_log["title"];
     $_POST["mode"]     = $r[0]["mode"];
-    $_POST["stat"]     = isset($r[0]["stat"]) ? $r[0]["stat"] : "";
+    $_POST["stat"]     = isset($cur_log["stat"]) ? $cur_log["stat"] : "";
     $_POST["parentid"] = $r[0]["logid"];
     $res .= m_get_index($threadid, $items);
     return $res;
@@ -503,13 +504,15 @@ function m_get_index_title__($level, $items, $no)
     $s = join("",$head_a) . $tree . $line . join("",$foot_a);
     
     $s .= "\n";
-    if (isset($log["children"]) && $log["children"]) {
+    if (isset($log["children"])) {
+      if ($log["children"]) {
         $len = count($log["children"]);
         for ($i = 0; $i < $len; $i++) {
             $row = $log["children"][$i];
             $s .= m_get_index_title__($level+1, $items, $row);
         }
+      }
     }
     return $s;
 }
-?>
+
