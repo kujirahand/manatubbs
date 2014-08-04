@@ -15,6 +15,25 @@ function m_error_dbopen()
 //----------------------------------------------------------------------
 // base library
 //----------------------------------------------------------------------
+function m_sqlite_open($dbfile, $mod) {
+  $db = new PDO("sqlite:$dbfile");
+  return $db;
+}
+function m_sqlite_exec($h, $query) {
+  return $h->exec($query);
+}
+function m_sqlite_last_error($h) {
+  return 0;
+}
+function m_sqlite_error_string($h) {
+  return "";
+}
+function m_sqlite_array_query($h, $query) {
+  $r = $h->query($query);
+  return $r->fetchAll();
+}
+function m_sqlite_close($h) {
+}
 function m_initDB()
 {
     global $mbbs;
@@ -22,41 +41,41 @@ function m_initDB()
     if (!file_exists($dbfile)) {
         m_db_createTable($dbfile);
     }
-    $h = @sqlite_open($dbfile, 0604);
+    $h = m_sqlite_open($dbfile, 0604);
     if (!$h) { m_error_dbopen(); }
     $mbbs["db.handle"] = &$h;
 }
 
 function m_db_createTable($dbfile)
 {
-    $h = @sqlite_open($dbfile, 0604);
+    $h = m_sqlite_open($dbfile, 0604);
     if (!$h) { m_error_dbopen(); }
     $query  = file_get_contents(FILE_INIT_SQL);
-    $result = sqlite_exec($h, $query);
+    $result = m_sqlite_exec($h, $query);
     if (!$result) {
-        $err = sqlite_error_string( sqlite_last_error($h) );
+        $err = m_sqlite_error_string( m_sqlite_last_error($h) );
         echo "DBの初期化に失敗しました。<br/>\n$err";
     }
-    sqlite_close($h);
+    m_sqlite_close($h);
 }
 
 function m_db_get_last_error()
 {
     global $mbbs;
-    return sqlite_error_string( sqlite_last_error($mbbs["db.handle"]) );
+    return m_sqlite_error_string( m_sqlite_last_error($mbbs["db.handle"]) );
 }
 
 function m_db_query($query)
 {
     global $mbbs;
-    $res = sqlite_array_query($mbbs["db.handle"], $query, SQLITE_ASSOC);
+    $res = m_sqlite_array_query($mbbs["db.handle"], $query);
     return $res;
 }
 
 function m_db_exec($query)
 {
     global $mbbs;
-    $err = sqlite_exec($mbbs["db.handle"], $query);
+    $err = m_sqlite_exec($mbbs["db.handle"], $query);
     if (!$err) {
         echo "[ERROR] ".m_db_get_last_error()."[$query]\n";
     }
@@ -65,7 +84,9 @@ function m_db_exec($query)
 
 function m_db_escape($s)
 {
-    return sqlite_escape_string($s);
+  $s = str_replace("''", "''", $s);
+  $s = str_replace("\\", "\\\\", $s);
+  return $s;
 }
 
 function m_db_insert($table, $values)
@@ -116,7 +137,8 @@ function m_db_update($table, $values, $where, $where_str = "")
 function m_db_last_insert_rowid()
 {
     global $mbbs;
-    return sqlite_last_insert_rowid($mbbs["db.handle"]);
+    $id = $mbbs["db.handle"]->lastInsertId();
+    return $id;
 }
 
 //----------------------------------------------------------------------
@@ -265,7 +287,7 @@ function m_show_tree()
     $limit  = $per + 1;
     $res    = "";
     $script = m_info("script");
-    
+
     $pager = "";
     $r = m_db_query("SELECT * FROM threads ORDER BY mtime DESC LIMIT {$limit} OFFSET {$offset}");
     if (count($r) == 0) {
@@ -301,8 +323,8 @@ function m_show_thread()
     $perpage  = m_info("logs.perpage");
     $offset = $page * $perpage;
     $limit = $perpage + 1;
-    $res = ""; 
-   
+    $res = "";
+
     // check thread
     $sql = "SELECT * FROM threads WHERE threadid=$threadid LIMIT 1";
     $r = m_db_query($sql);
@@ -317,7 +339,7 @@ function m_show_thread()
     }
     $logid = $topr[0]["logid"];
     $top = m_get_log_item($topr[0]);
-    
+
     // get record log
     $sql = "SELECT * FROM logs WHERE threadid=$threadid AND logid != $logid ORDER BY logid DESC LIMIT $limit OFFSET $offset";
     $items = m_db_query($sql);
@@ -471,10 +493,10 @@ function m_get_index_title__($level, $items, $no)
     }
     $head_a = array();
     $foot_a = array();
-    
+
     array_push   ($head_a,"<div class='node'>");
     array_unshift($foot_a,"</div>");
-    
+
     if ($level == 0) {
         $link = m_link(array("m=thread","threadid={$threadid}"));
         $css = ($logid == m_param("logid")) ? "curnode" : "itemnode";
@@ -488,7 +510,7 @@ function m_get_index_title__($level, $items, $no)
         array_push   ($head_a, $icon." ");
         array_unshift($foot_a,"");
     }
-    
+
     $mode = htmlspecialchars($mode);
     $status = htmlspecialchars($status);
     $mtime = date("Y-m-d H:i", $mtime);
@@ -500,9 +522,9 @@ function m_get_index_title__($level, $items, $no)
     $logidlink = "<span class='id'>(<a href='{$link}'>#{$logid}</a>)</span>";
     $line  = "<a href='{$link}'>$title</a> / $name $mtime $logidlink";
     $line .= "<span class='hint'>/ $mode $status</span>";
-    
+
     $s = join("",$head_a) . $tree . $line . join("",$foot_a);
-    
+
     $s .= "\n";
     if (isset($log["children"])) {
       if ($log["children"]) {
@@ -515,4 +537,3 @@ function m_get_index_title__($level, $items, $no)
     }
     return $s;
 }
-

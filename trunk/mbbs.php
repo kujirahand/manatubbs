@@ -21,7 +21,7 @@ if (file_exists("setting-user.ini.php")) {
     require_once "setting-user.ini.php";
 }
 $mbbs["mode"] = $mbbs["priority"];
-remove_magic_quotes_gpc(); // remove
+//remove_magic_quotes_gpc(); // remove
 //----------------------------------------------------------------------
 // データベースの初期化処理
 m_initDB();
@@ -60,7 +60,7 @@ function m_mode__threads()
 {
 	$rlink = m_link(array("m=mikaiketu"));
     __m_mode__show_threads(
-    	"スレッド一覧を表示中(<a href='$rlink'>→未解決のみ表示</a>):", 
+    	"スレッド一覧を表示中(<a href='$rlink'>→未解決のみ表示</a>):",
     	false, "threads");
 }
 
@@ -237,7 +237,7 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
     }
     $log_v['threadid']  = intval($log_v['threadid']);
     $log_v['parentid']  = intval($log_v['parentid']);
-    $log_v['ip']        = $_SEVER['SERVER_ADDR'];   
+    $log_v['ip']        = $_SERVER['SERVER_ADDR'];
 }
 
 function m_mode__write_strim(&$title, &$name)
@@ -293,7 +293,7 @@ function m_mode__write()
             echo m_db_get_last_error();
             exit;
         }
-        
+
         $log_v["threadid"] = $threadid;
         if (!m_db_insert("logs", $log_v)) {
             echo m_db_get_last_error();
@@ -334,7 +334,7 @@ function m_mode__write()
     }
     m_db_query("commit");
     mbbs_setcookie($log_v);
-    
+
     $script = m_info("script_name");
     $msg = urlencode("書き込みが完了しました。");
     $jump = "$script?logid=$logid&m=log&msg=$msg";
@@ -344,7 +344,7 @@ function m_mode__write()
     if (m_info("mail.to", FALSE)) {
         $to      = m_info("mail.to");
         $subject = m_info("mail.title") . "($logid)" . $log_v["title"];
-        $body    =  
+        $body    =
                     m_info("TITLE")."への書き込み:\n".
                     '[URL] http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'].
                     "?logid={$logid}&m=log\n".
@@ -452,7 +452,7 @@ function m_mode__rss()
 function m_mode__search()
 {
     $script = m_info("script_name");
-    $body  = 
+    $body  =
         "<center>".
         "<div class='inputform'>".
         m_build_form(array(
