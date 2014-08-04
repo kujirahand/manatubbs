@@ -30,7 +30,11 @@ function m_sqlite_error_string($h) {
 }
 function m_sqlite_array_query($h, $query) {
   $r = $h->query($query);
-  return $r->fetchAll();
+  if ($r) {
+    return $r->fetchAll();
+  } else {
+    return array();
+  }
 }
 function m_sqlite_close($h) {
 }
