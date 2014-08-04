@@ -214,6 +214,7 @@ function m_show_error($msg)
 
 function remove_magic_quotes_gpc()
 {
+/*
     if (get_magic_quotes_gpc()) {
         foreach ($_GET as $key => $val) {
             $_GET[$key] = stripslashes($val);
@@ -222,6 +223,7 @@ function remove_magic_quotes_gpc()
             $_POST[$key] = stripslashes($val);
         }
     }
+*/
 }
 
 ?>
