@@ -424,8 +424,16 @@ function m_get_log_item($log)
     if (!function_exists("replace_attach_link")) {
         function replace_attach_link($m) {
             $attachdir = m_info("upload.dir");
-            if (preg_match("#\.(jpeg|jpg|png|gif)$#", $m[1])) {
-                return "<img src='{$attachdir}{$m[1]}'/>";
+            if (preg_match("#\.(jpeg|jpg|png|gif)$#i", $m[1])) {
+                $uriDir  = "http://".$_SERVER['SERVER_NAME'].
+                  dirname($_SERVER['SCRIPT_NAME']);
+                $imgURI = $attachdir.$m[1];
+                return
+                  "<p><a href='{$imgURI}'>".
+                  "<img src='{$imgURI}' width='400' border='0' />".
+                  "<br>{$uriDir}/{$imgURI}".
+                  "</a></p>"
+                  ;
             } else {
                 return "<a href='{$attachdir}{$m[1]}'>(attach:{$m[1]})</a>";
             }
