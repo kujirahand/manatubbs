@@ -39,7 +39,7 @@ $mbbs["bot.enabled"]     = TRUE;
  */
 $mbbs["upload.maxsize"]      = 1024 * 300; // 300KB
 $mbbs["upload.format.hint"]  = "画像ファイル(最大300KB)を添付可能";
-$mbbs["upload.format"]       = "#\.(jpeg|jpg|png|gif)$#";
+$mbbs["upload.format"]       = "#\.(jpeg|jpg|png|gif)$#i";
 $mbbs["upload.dir"]          = "attach/";
 
 /**
