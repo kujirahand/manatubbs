@@ -2,6 +2,8 @@
 //----------------------------------------------------------------------
 // manatubbs
 //----------------------------------------------------------------------
+define("MBBS_VER", "1.55");
+
 mb_internal_encoding("UTF-8");
 date_default_timezone_set("Asia/Tokyo");
 header("Content-Type: text/html; charset=UTF-8");
