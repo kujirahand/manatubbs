@@ -2,7 +2,7 @@
 //----------------------------------------------------------------------
 // manatubbs
 //----------------------------------------------------------------------
-define("MBBS_VER", "1.55");
+define("MBBS_VER", "1.56");
 
 mb_internal_encoding("UTF-8");
 date_default_timezone_set("Asia/Tokyo");
@@ -23,10 +23,20 @@ if (file_exists("setting-user.ini.php")) {
     require_once "setting-user.ini.php";
 }
 $mbbs["mode"] = $mbbs["priority"];
-//remove_magic_quotes_gpc(); // remove
+
+// --- login ?
+if (isset($mbbs["use.login"]) && $mbbs["use.login"]) {
+  session_start();
+  if (!m_is_login()) {
+    m_check_login();
+  }
+  $mbbs['menubar'][] = array('label'=>'ログアウト', 'link'=>m_url('logout'));
+}
+
 //----------------------------------------------------------------------
 // データベースの初期化処理
 m_initDB();
+
 //----------------------------------------------------------------------
 // メインコントローラー
 // パラメータの取得、m が省略されたら all をセットする
@@ -512,4 +522,10 @@ function m_mode__search2()
     exit;
 }
 
-?>
+function m_mode__logout() {
+  m_set_login(FALSE);
+  m_show_error('<a href="./">ログアウトしました。</a>');
+}
+
+
+

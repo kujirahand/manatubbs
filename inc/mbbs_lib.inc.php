@@ -24,6 +24,55 @@ function m_cookie($key, $default = FALSE)
     return empty($_COOKIE[$key]) ? $default : $_COOKIE[$key];
 }
 
+function m_is_login() {
+  global $mbbs;
+  if (isset($_SESSION['mbbs_login']) && $_SESSION['mbbs_login'] > 0) {
+    return TRUE;
+  }
+  return FALSE;
+}
+function m_set_login($islogin) {
+  if ($islogin) {
+    $_SESSION['mbbs_login'] = time();
+  }
+  else {
+    $_SESSION['mbbs_login'] = 0;
+  }
+}
+
+function m_check_login() {
+  global $mbbs;
+  $msg = "ログインしていません。";
+  if (isset($_POST['user']) && isset($_POST['pass'])) {
+    $user = trim($_POST['user']);
+    $pass = trim($_POST['pass']);
+    // check conf
+    $a = array();
+    $users_s = $mbbs['users'];
+    $users_a = explode(",", $users_s);
+    foreach ($users_a as $line) {
+      $cs = explode(":", $line);
+      $a[trim($cs[0])] = trim($cs[1]);
+    }
+    if (isset($a[$user]) && $a[$user] === $pass) {
+      m_set_login(TRUE);
+      return;
+    } else {
+      $msg = "パスワードが違います。";
+    }
+  }
+  // form
+  m_show_error(
+    "<p>$msg</p>".
+    "<form method='POST'>".
+    "<p>ユーザー名:<br><input name='user' size='12'></p>".
+    "<p>パスワード:<br><input name='pass' size='12'></p>".
+    "<p><input type='submit' value='ログイン'></p>".
+    ""
+  );
+  exit;
+}
+
 function m_date($time)
 {
     $s = date("Y-m-d", $time);

@@ -8,6 +8,11 @@ $mbbs["HOME"]         = "<a href='http://nadesi.com/'>なでしこTOP</a>";
 $mbbs["DESCRIPTION"]  = "なでしこのバグ（不具合）を報告する掲示板です。";
 $mbbs["AUTHOR"]       = "なでしこユーザー";
 
+/** ログイン機能を使うか */
+$mbbs["use.login"]    = TRUE;
+$mbbs["users"]        = "user1:pass1,user2:pass2,user3:pass3";
+// カンマで区切って user1:pass,user2:pass,user3:pass のように書く
+
 /**
  * データベースの設定
  */
@@ -99,4 +104,3 @@ $mbbs["menubar"][] = array("label"=>"RSS",      "link"=>m_url("rss"));
 $mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("type"=>"html",      "link"=>m_info("HOME"));
 
-?>
