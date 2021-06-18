@@ -17,7 +17,7 @@ $mbbs["users"]        = "user1:pass1,user2:pass2,user3:pass3";
  * データベースの設定
  */
 $root = dirname(__FILE__);
-$mbbs["db.name"] = "{$root}/db/manatubbs.db";
+$mbbs["db.name"] = "{$root}/db/manatubbs.sqlite3";
 
 /**
  * 各種の初期値

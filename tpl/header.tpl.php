@@ -3,10 +3,11 @@ global $mbbs;
 extract($mbbs);
 $linkurl = "http://".$_SERVER["HTTP_HOST"]. $_SERVER["SCRIPT_NAME"];
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="mbbs.css">
   <title><?php echo $TITLE?></title>
   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<?php echo $linkurl?>?m=rss">
