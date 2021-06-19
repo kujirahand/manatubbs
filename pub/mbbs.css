@@ -36,8 +36,8 @@
 }
 
 .hint {
-    font-size: 0.6em;
-    color: #a0a0a0;
+    font-size: 0.8em;
+    color: #707070;
 }
 
 .description {
@@ -47,8 +47,8 @@
 }
 
 .desctiption2 {
-    font-size: 0.7em;
-    color: #a0a0a0;
+    font-size: 0.8em;
+    color: #909090;
     text-align: left;
 }
 
@@ -156,7 +156,7 @@ itemnode {
 .pager {
     padding: 0px;
     margin: 4px;
-    font-size: 0.6em;
+    font-size: 1.0em;
 }
 
 .reply {
@@ -177,7 +177,7 @@ itemnode {
     border-collapse: collapse;
     padding: 6px;
     margin: 0px;
-    font-size: 0.7em;
+    font-size: 0.9em;
 }
 
 .thread table th {
