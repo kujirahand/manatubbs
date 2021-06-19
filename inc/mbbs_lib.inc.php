@@ -65,8 +65,8 @@ function m_check_login() {
   m_show_error(
     "<p>$msg</p>".
     "<form method='POST'>".
-    "<p>ユーザー名:<br><input name='user' size='12'></p>".
-    "<p>パスワード:<br><input name='pass' size='12'></p>".
+    "<p>ユーザー名:<br><input class='input' name='user' size='12'></p>".
+    "<p>パスワード:<br><input class='input' name='pass' size='12'></p>".
     "<p><input type='submit' value='ログイン'></p>".
     ""
   );
@@ -135,7 +135,7 @@ function m_build_form($form_array, $method = "get", $button = "送信", $flag_up
 {
     $hidden = "";
     $action = m_info("script_name");
-    $parts = "<div class='inputformtable'><table width='100%'>\n";
+    $parts = "<div class='inputformtable'>\n";
     foreach ($form_array as $row) {
         if (substr($row, 0, 20) == "<input type='hidden'") {
             $hidden .= $row;
@@ -143,8 +143,8 @@ function m_build_form($form_array, $method = "get", $button = "送信", $flag_up
         }
         $parts .= $row . "\n";
     }
-    $parts .= "<tr><th></th><td align='right'><input type='submit' value='$button'/></td></tr>\n";
-    $parts .= "</table></div>\n";
+    $parts .= "<div><input class='button is-info' type='submit' value='$button'/></div>\n";
+    $parts .= "</div><!-- /.inputformtable -->\n";
     $enctype = ($flag_upload) ? 'enctype="multipart/form-data"' : "";
     return <<< EOS__
 <form $enctype action="$action" method="$method">
@@ -181,38 +181,52 @@ function m_form_parts($caption, $name, $type, $attr = "", $value = "")
     $f = "";
     switch ($type) {
         case "text":
-            $f = "<input type='text' name='$name' value='{$value}' $attr_s />";
+            $f = "<input class='input' type='text' name='$name' value='{$value}' $attr_s />";
             break;
         case "password":
-            $f = "<input type='password' name='$name' value='{$value}' $attr_s />";
+            $f = "<input class='input' type='password' name='$name' value='{$value}' $attr_s />";
             break;
         case "textarea":
-            $f = "<textarea name='$name' $attr_s rows='80' cols='6'>$value</textarea>";
+            $f = "<textarea class='textarea' name='$name' $attr_s rows='80' cols='6'>$value</textarea>";
             break;
         case "select":
-            $f = "<select name='$name' $attr_s>\n";
+            $f =  "<div class='select'>".
+                  "<select name='$name' $attr_s>\n";
             foreach($items as $item) {
                 $vvv = ($value == $item) ? "selected" : "";
                 $f .= "<option value='$item' $vvv>$item</option>\n";
             }
-            $f .= "</select>\n";
+            $f .= "</select></div>\n";
             break;
         case "hidden":
             if ($attr_s != "") { $attr_s = " ".$attr_s; }
             $f = "<input type='hidden' name='$name' value='$value'{$attr_s}>";
             break;
         case "file":
-            $f = "<input type='file' name='$name' $attr_s />";
+            $f = "<div class='file'>";
+            $f .= " <label class='file-label'>";
+            $f .= "   <input class='file-input' type='file' name='$name' $attr_s />";
+            $f .= "   <span class='file-cta'>";
+            $f .= "     <span class='file-icon'>";
+            $f .= "       <span class='fas fa-upload'>🎁</span>";
+            $f .= "     </span>";
+            $f .= "     <span class='file-label'>ファイルを選択...</span>";
+            $f .= "   </span>";
+            $f .= "  </label>";
+            $f .= "</div>";
             break;
     }
     if ($hint != "") {
-        $hint = "&nbsp;<span class='hint'>$hint</span>";
+        $hint = "<p class='help hint'>$hint</p>";
     }
     # hidden
     if ($type == "hidden") {
         return $f;
     } else {
-        return "<tr><th width='20%'>{$caption}</th><td width='80%'>{$f}{$hint}</td></tr>";
+        return "<div class='field'>".
+          "<label class='label'>{$caption}</label>".
+          "<div class='control'>{$f}</div>".
+          "{$hint}</div>";
     }
 }
 
