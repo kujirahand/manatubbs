@@ -428,17 +428,16 @@ function m_get_log_item($log)
         function replace_attach_link($m) {
             $attachdir = m_info("upload.dir");
             if (preg_match("#\.(jpeg|jpg|png|gif)$#i", $m[1])) {
-                $scheme = 'https';
-                if (empty($_SERVER['HTTPS'])) { $scheme = 'http'; }
-                $uriDir  = "$scheme://".$_SERVER['SERVER_NAME'].
-                  dirname($_SERVER['SCRIPT_NAME']);
-                $imgURI = $attachdir.$m[1];
-                return
-                  "<p><a href='{$imgURI}'>".
-                  "<img src='{$imgURI}' width='400' border='0' />".
-                  "<br>{$uriDir}/{$imgURI}".
-                  "</a></p>"
+                // check file
+                $file_image = m_info('upload.dir','').'/'.$m[1];
+                $url_image = 'attach/'.$m[1];
+                if (file_exists($file_image)) {
+                    return
+                    "<p><a href='{$url_image}'>".
+                    "<img src='{$url_image}' width='400' border='0' />".
+                    "</a></p>"
                   ;
+                }
             } else {
                 return "<a href='{$attachdir}{$m[1]}'>(attach:{$m[1]})</a>";
             }

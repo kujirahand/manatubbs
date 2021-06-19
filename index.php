@@ -24,7 +24,7 @@ if (file_exists($setting_user_file)) {
 $dir_engine = $mbbs['dir.engine'];
 $file_main = $dir_engine.'/index.inc.php';
 if (!file_exists($dir_engine)) {
-  echo 'Please set $mbbs["dir.eingine"] in setting-user.ini.php'; exit;
+  echo 'Please set $mbbs["dir.engine"] in setting-user.ini.php'; exit;
 }
 include_once $file_main;
 

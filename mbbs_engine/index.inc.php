@@ -356,7 +356,7 @@ function m_mode__write()
             m_show_error("アップロードに失敗しました。"); exit;
         }
         // 権限を読み込み可能に変更する ---
-        chmod($uploadfile,0644);
+        // chmod($uploadfile,0644);
         // ---
         $log_v["body"] = $log_v["body"]."\n".$attach."\n";
         if (!m_db_update("logs", $log_v, array("logid"=>$logid))) {
