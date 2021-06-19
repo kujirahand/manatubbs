@@ -490,7 +490,7 @@ function m_mode__search2()
     $key_ = htmlspecialchars($key);
     $w  = array();
     $w2 = array();
-    $words = split(" ", $key);
+    $words = explode(" ", $key);
     foreach ($words as $word) {
         $word = m_db_escape($word);
         $word = "%$word%";
