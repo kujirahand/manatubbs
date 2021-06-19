@@ -27,7 +27,6 @@ $mbbs["firstview"]       = "threads"; // はじめに表示するページ
 $mbbs["threads.perpage"] = 50;
 $mbbs["logs.perpage"]    = 20;
 $mbbs["tree.perpage"]    = 8;
-$mbbs["script_name"]     = "mbbs.php";
 $mbbs["bot.message"]     = "棚から牡丹餅";
 $mbbs["adminpass"]       = "xxx";
 $mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
@@ -87,7 +86,7 @@ EOS__;
 /**
  * メニューの定義
  */
-$script_name = $mbbs["script_name"];
+$script_name = 'index.php';
 $mbbs["menubar"] = array();
 $mbbs["menubar"][] = array("label"=>"新規",     "link"=>"{$script_name}#inputform");
 $mbbs["menubar"][] = array("type"=>"-");

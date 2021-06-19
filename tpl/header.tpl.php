@@ -24,7 +24,7 @@ echo <<< EOS
 </head>
 <body>
 <!-- header -->
-<div id="header">{$mbar_html}</div>
+<div id="header" class="menubar">{$mbar_html}</div>
 <!-- title -->
 <div class="title" id="title">
   <h1><a href="{$script_name}">{$TITLE}</a></h1>

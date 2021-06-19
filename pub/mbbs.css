@@ -1,8 +1,12 @@
 /* CSS for bbs.php */
 
 #header {
-  text-align: right;
+  text-align: center;
+}
+.menubar {
   font-size: 0.8em;
+  background-color: #f0f0f0;
+  padding: 6px;
   margin-bottom:1em;
 }
 
