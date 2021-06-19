@@ -341,7 +341,8 @@ function m_mode__write()
         $file_err  = $_FILES['attach']['error'];
         $name       = $logid."-".urlencode(basename($file_name));
         $name       = str_replace("%", "", $name);
-        $uploadfile = m_info('upload.dir').$name;
+        $uploadfile = m_info('upload.dir').'/'.$name;
+        $uploadfile = str_replace('//', '/', $uploadfile);
         $attach     = "(attach:$name)";
         if (intval(m_info('upload.maxsize')) < $file_size) {
             m_db_query("rollback");

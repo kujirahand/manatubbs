@@ -426,11 +426,10 @@ function m_get_log_item($log)
     // attach file
     if (!function_exists("replace_attach_link")) {
         function replace_attach_link($m) {
-            $attachdir = m_info("upload.dir");
+            $file_image = m_info('upload.dir','').'/'.$m[1];
+            $url_image = 'attach/'.$m[1];
             if (preg_match("#\.(jpeg|jpg|png|gif)$#i", $m[1])) {
                 // check file
-                $file_image = m_info('upload.dir','').'/'.$m[1];
-                $url_image = 'attach/'.$m[1];
                 if (file_exists($file_image)) {
                     return
                     "<p><a href='{$url_image}'>".
@@ -439,7 +438,7 @@ function m_get_log_item($log)
                   ;
                 }
             } else {
-                return "<a href='{$attachdir}{$m[1]}'>(attach:{$m[1]})</a>";
+                return "<a href='{$url_image}{$m[1]}'>(attach:{$m[1]})</a>";
             }
         }
     }
