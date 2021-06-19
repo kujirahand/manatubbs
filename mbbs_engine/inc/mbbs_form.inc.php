@@ -52,7 +52,7 @@ function m_show_form($caption = "", $formmode = "write")
     $items[] = m_form_parts(
     	m_info("priority.label"),		"mode",     "select",
                 array(
-                    'items'=>m_info('mode'),
+                    'items'=>m_info('priority'),
                     'style'=>'width:200px',
                 ), $ff_mode);
     $items[] = m_form_parts(
@@ -64,7 +64,7 @@ function m_show_form($caption = "", $formmode = "write")
     if (m_info('bot.enabled')) {
         $items[] = m_form_parts("確認キー","manatubbs_checkbot", "text",
                 array(
-                    'hint'=>"お手数ですが、いたずら防止のために、".m_info('bot.q'),
+                    'hint'=>"👆お手数ですが、いたずら防止のために、".m_info('bot.q'),
                     'style'=>'width:200px',
                 ), m_cookie("mbbs_botkey",""));
     }

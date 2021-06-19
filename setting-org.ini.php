@@ -18,6 +18,7 @@ $mbbs["users"]        = "user1:pass1,user2:pass2,user3:pass3";
  */
 $root = dirname(__FILE__);
 $mbbs["db.name"] = "{$root}/db/manatubbs.sqlite3";
+$mbbs["dir.engine"] = "{$root}/mbbs_engine";
 
 /**
  * 各種の初期値
@@ -28,13 +29,13 @@ $mbbs["threads.perpage"] = 50;
 $mbbs["logs.perpage"]    = 20;
 $mbbs["tree.perpage"]    = 8;
 $mbbs["bot.message"]     = "棚から牡丹餅";
-$mbbs["adminpass"]       = "xxx";
+$mbbs["adminpass"]       = "manatu_admin";
 $mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
 
 /**
  * スパム対策
  */
-$mbbs["bot.q"]           = "「真夏」の読み方を記入してください。";
+$mbbs["bot.q"]           = "「真夏」の読み方を平仮名で記入してください。";
 $mbbs["bot.a"]           = "まなつ";
 $mbbs["bot.enabled"]     = TRUE;
 
@@ -60,19 +61,23 @@ $mbbs["mail.title"] = "[manatubbs]";
  */
 $mbbs["priority.label"] = "優先度";
 $mbbs["priority"] = array(
-    '低','中','高','緊急'
+  '低','中','高','緊急'
 );
 $mbbs["priority.color"] = array(
-    '低'  =>array("bgcolor"=>'#ffffff', "color"=>"#888888"),
-    '高'  =>array("bgcolor"=>'#f8e0e0', "color"=>"#000000"),
-    '緊急'=>array("bgcolor"=>'#f8e0e0', "color"=>"#ff00cc"),
+  '低'  =>array("bgcolor"=>'#ffffff', "color"=>"#888888"),
+  '高'  =>array("bgcolor"=>'#f8e0e0', "color"=>"#000000"),
+  '緊急'=>array("bgcolor"=>'#f8e0e0', "color"=>"#ff00cc"),
 );
 $mbbs["status.label"] = "状態";
 $mbbs["status"] = array(
-    '未処理','調査中','修正中','確認待ち','解決','---','アイデア','感想','告知'
+  '未処理','調査中','修正中','確認待ち','解決','---','アイデア','感想','告知'
 );
 $mbbs["status.color"] = array(
-    '解決' => array('bgcolor' => '#f0f0f0', 'color' => '#888888', 'style' => 'text-decoration:line-through'),
+  '解決' => array(
+    'bgcolor' => '#f0f0ff',
+    'color' => '#a0a0a0',
+    'style' => 'text-decoration:normal;'
+  ),
 );
 
 $mbbs["body.template"] = <<<EOS__

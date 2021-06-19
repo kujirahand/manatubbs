@@ -2,12 +2,6 @@
 //----------------------------------------------------------------------
 // manatubbs library
 //----------------------------------------------------------------------
-function m_info($param, $default = FALSE)
-{
-    global $mbbs;
-    return empty($mbbs[$param]) ? $default : $mbbs[$param];
-}
-
 function m_param($param, $default = FALSE)
 {
     if (empty($_POST[$param])) {
@@ -64,11 +58,11 @@ function m_check_login() {
   // form
   m_show_error(
     "<p>$msg</p>".
-    "<form method='POST'>".
-    "<p>ユーザー名:<br><input class='input' name='user' size='12'></p>".
-    "<p>パスワード:<br><input class='input' name='pass' size='12'></p>".
-    "<p><input type='submit' value='ログイン'></p>".
-    ""
+    "<div class='form card' style='width:20em;padding:1em;'><form method='POST'>".
+    "<p><label>ユーザー名:<br><input class='input' name='user' size='12'></label></p>".
+    "<p><label>パスワード:<br><input class='input' name='pass' size='12'></label></p>".
+    "<p><input class='button is-primary' type='submit' value='ログイン'></p>".
+    "</div>"
   );
   exit;
 }
@@ -81,16 +75,6 @@ function m_date($time)
         $h = "<span class='date'>$s<span class='new'>New!</span></span>";
     }
     return $h;
-}
-
-function m_url($mod = "", $param_str = "")
-{
-    $script = m_info("script_name");
-    $r = array();
-    if ($mod != ""      ) { $r[] = "m=$mod";   }
-    if ($param_str != "") { $r[] = $param_str; }
-    $url = $script."?".join("&amp;", $r);
-    return $url;
 }
 
 function m_array_value(&$array, $value, $def = false)
@@ -253,7 +237,9 @@ function m_logid_embedLink($m)
 function m_link($params = array())
 {
     $p   = join("&amp;", $params);
-    $uri = "http://".$_SERVER["HTTP_HOST"].$_SERVER["SCRIPT_NAME"];
+    $scheme = 'https';
+    if (empty($_SERVER['HTTPS'])) { $scheme = 'http'; }
+    $uri = "$scheme://".$_SERVER["HTTP_HOST"].$_SERVER["SCRIPT_NAME"];
     if ($p != "") {
         $uri .= "?".$p;
     }
@@ -265,14 +251,15 @@ function m_link($params = array())
 //----------------------------------------------------------------------
 function m_show_error($msg)
 {
-    // ヘッダを表示
-    include "tpl/header.tpl.php";
-    // 本文
-    $body = $msg;
-    include "tpl/body.tpl.php";
-    // フッターを表示
-    include "tpl/footer.tpl.php";
-    exit;
+  // ヘッダを表示
+  $dir = dirname(__DIR__);
+  include "$dir/tpl/header.tpl.php";
+  // 本文
+  $body = $msg;
+  include "$dir/tpl/body.tpl.php";
+  // フッターを表示
+  include "$dir/tpl/footer.tpl.php";
+  exit;
 }
 
 function remove_magic_quotes_gpc()

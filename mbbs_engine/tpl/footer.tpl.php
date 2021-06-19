@@ -11,11 +11,9 @@ echo <<< __EOS__
   <div class="menubar">{$mbar_html}</div>
   
   <p>
-    <a href="{$script_name}?m=rss">
-      <img src="img/rss.gif" alt="RSS"/> RSS
-    </a>
+    <a href="{$script_name}?m=rss">♪RSS</a>
     -
-    <a href="http://kujirahand.com/wiki/index.php?manatubbs">
+    <a href="https://kujirahand.com/wiki/index.php?manatubbs">
      manatubbs v.{$ver}</a>
   </p>
   <br><br>

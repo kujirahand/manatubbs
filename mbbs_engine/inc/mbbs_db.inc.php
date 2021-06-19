@@ -3,7 +3,7 @@
 // manatubbs database library function
 // いろはにほへと
 //----------------------------------------------------------------------
-define("FILE_INIT_SQL","db/sql.txt");
+// define("FILE_INIT_SQL","db/sql.txt");
 
 function m_error_dbopen()
 {
@@ -54,7 +54,10 @@ function m_db_createTable($dbfile)
 {
     $h = m_sqlite_open($dbfile, 0604);
     if (!$h) { m_error_dbopen(); }
-    $query  = file_get_contents(FILE_INIT_SQL);
+    
+    $engine = dirname(__DIR__);
+    $sql = "$engine/tpl/sql.txt";
+    $query  = file_get_contents($sql);
     $result = m_sqlite_exec($h, $query);
     if (!$result) {
         $err = m_sqlite_error_string( m_sqlite_last_error($h) );
@@ -199,11 +202,11 @@ function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
     $pager .= "<span class='pager'>";
     if ($page > 0) {
         $page_ = $page;
-        $pager .= "<a href='{$script}?p={$page_}&m={$m_mode}'>←前へ</a>&nbsp;";
+        $pager .= "<a class='button' href='{$script}?p={$page_}&m={$m_mode}'>←前へ</a>&nbsp;";
     }
     if (count($r) >= $limit) {
         $page_ = $page + 2;
-        $pager .= "<a href='{$script}?p={$page_}&m={$m_mode}'>次へ→</a>";
+        $pager .= "<a class='button' href='{$script}?p={$page_}&m={$m_mode}'>次へ→</a>";
         array_pop($r);
     }
     $pager .= "</span>\n";
@@ -425,7 +428,9 @@ function m_get_log_item($log)
         function replace_attach_link($m) {
             $attachdir = m_info("upload.dir");
             if (preg_match("#\.(jpeg|jpg|png|gif)$#i", $m[1])) {
-                $uriDir  = "http://".$_SERVER['SERVER_NAME'].
+                $scheme = 'https';
+                if (empty($_SERVER['HTTPS'])) { $scheme = 'http'; }
+                $uriDir  = "$scheme://".$_SERVER['SERVER_NAME'].
                   dirname($_SERVER['SCRIPT_NAME']);
                 $imgURI = $attachdir.$m[1];
                 return
