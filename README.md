@@ -1,7 +1,10 @@
 # manatubbs
 
- - [author] [kujirahand](https://kujirahand.com/)
- - [WEB](https://kujirahand.com/wiki/index.php?manatubbs)
+manatubbs はスレッド型/ツリー型の掲示板です。
+プロジェクト管理などに利用することを目的としています。
+
+ - [Repo] https://github.com/kujirahand/manatubbs
+ - [Web] https://kujirahand.com/wiki/index.php?manatubbs
 
 ## 使用方法
 
