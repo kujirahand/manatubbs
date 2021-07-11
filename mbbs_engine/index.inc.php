@@ -477,6 +477,7 @@ function m_mode__rss()
     $logs = m_db_query($sql);
     //
     $linkurl = m_link();
+    $script = $_SERVER['SCRIPT_NAME'];
     $logourl = preg_replace("#{$script}#","logo.png",$linkurl);
     require_once "tpl/rss.tpl.php";
 }
