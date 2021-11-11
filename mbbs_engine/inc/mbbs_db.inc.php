@@ -412,7 +412,7 @@ function m_get_log_item($log)
     $body = preg_replace("#\t#","　　",$body);
     $body = preg_replace("#\x20#","&nbsp;",$body);
     $body = preg_replace("#((http|https)\:\/\/[a-zA-Z0-9\.\,\/\#\?\&\=\-\_\~\+\%\;\:\*\!\@\[\]]+)#","<a href='$1'>$1</a>",$body);
-    $body = "<!-- body -->\n".$body."\n<!-- end of body-->\n";
+    $body = trim($body)."\n";
     // body replyto
     $body = preg_replace("#\n(\&gt\;[^\n]+)#","\n<span class='reply'>$1</span>",$body);
     // thread link
@@ -458,7 +458,7 @@ function m_get_log_item($log)
         <span class="hint">/$mode $status</span>
     </div>
     <div class="body">
-        <code>$body</code>
+        $body
         <div class="editlink"><a href="{$editlink}">編集</a></div>
     </div>
 </div>

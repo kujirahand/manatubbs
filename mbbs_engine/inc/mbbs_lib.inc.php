@@ -60,7 +60,7 @@ function m_check_login() {
     "<p>$msg</p>".
     "<div class='form card' style='width:20em;padding:1em;'><form method='POST'>".
     "<p><label>ユーザー名:<br><input class='input' name='user' size='12'></label></p>".
-    "<p><label>パスワード:<br><input class='input' name='pass' size='12'></label></p>".
+    "<p><label>パスワード:<br><input class='input' name='pass' size='12' type='password'></label></p>".
     "<p><input class='button is-primary' type='submit' value='ログイン'></p>".
     "</div>"
   );
