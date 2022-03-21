@@ -284,7 +284,7 @@ function m_mode__write()
     $thread_v = array();
     $log_v    = array();
     m_mode__write_checkParam($thread_v, $log_v);
-    m_db_query("begin");
+    m_db_exec("begin", []);
     // 簡略版を作っておく
     $title = $log_v["title"];
     $name  = $log_v["name"];
@@ -310,7 +310,7 @@ function m_mode__write()
         $log_v["mtime"] = $log_v["ctime"] = $thread_v["mtime"] = time();
         $threadid = intval(m_param("threadid"));
         // threads
-        $old = m_db_query("SELECT * FROM threads WHERE threadid=$threadid");
+        $old = m_db_query("SELECT * FROM threads WHERE threadid=?", [$threadid]);
         if (!$old) {
             m_show_error("threadid=$threadid は存在しません。"); exit;
         }
@@ -345,15 +345,15 @@ function m_mode__write()
         $uploadfile = str_replace('//', '/', $uploadfile);
         $attach     = "(attach:$name)";
         if (intval(m_info('upload.maxsize')) < $file_size) {
-            m_db_query("rollback");
+            m_db_exec("rollback", []);
             m_show_error("ファイルサイズが大きすぎます。戻るボタンでやり直してください。"); exit;
         }
         if (!preg_match(m_info("upload.format"), $file_name)) {
-            m_db_query("rollback");
+            m_db_exec("rollback",[]);
             m_show_error("アップロードできない形式です。"); exit;
         }
         if (!move_uploaded_file($file_temp, $uploadfile)) {
-            m_db_query("rollback");
+            m_db_exec("rollback", []);
             m_show_error("アップロードに失敗しました。"); exit;
         }
         // 権限を読み込み可能に変更する ---
@@ -365,7 +365,7 @@ function m_mode__write()
             exit;
         }
     }
-    m_db_query("commit");
+    m_db_exec("commit", []);
     mbbs_setcookie($log_v);
 
     $script = m_info("script_name");
@@ -413,14 +413,14 @@ function m_mode__editlog()
     m_mode__write_checkParam($thread_v, $log_v);
     // ログの読み出し
     $logid = intval(m_param("logid", 0));
-    $r = m_db_query("SELECT * FROM logs WHERE logid=$logid");
+    $r = m_db_query("SELECT * FROM logs WHERE logid=?", [$logid]);
     if (empty($r[0]["logid"])) {
         m_show_error("id=$logid は存在しません。");
     }
     $oldlog = $r[0];
     // スレッドの読み出し
     $threadid = $oldlog["threadid"];
-    $r = m_db_query("SELECT * FROM threads WHERE threadid=$threadid");
+    $r = m_db_query("SELECT * FROM threads WHERE threadid=?", [$threadid]);
     if (empty($r[0]["threadid"])) {
         m_show_error("id=$threadid は存在しません。");
     }
@@ -437,7 +437,7 @@ function m_mode__editlog()
         m_show_error("パスワードが違います。");
     }
     //
-    m_db_query("begin");
+    m_db_exec("begin", []);
     // set time
     $log_v["ctime"] = $oldlog["ctime"];
     $log_v["mtime"] = $thread_v["mtime"] = time();
@@ -459,7 +459,7 @@ function m_mode__editlog()
     if (!m_db_update("threads", $thread_v, array("threadid"=>$threadid))) {
         m_show_error("DBへの書き込みに失敗。");
     }
-    m_db_query("commit");
+    m_db_exec("commit", []);
     //
     mbbs_setcookie($log_v);
     $script = m_info("script_name");
@@ -474,7 +474,7 @@ function m_mode__rss()
 {
     header("Content-Type: application/xml; charset=UTF-8");
     $sql = "SELECT * FROM logs ORDER BY ctime DESC LIMIT 20";
-    $logs = m_db_query($sql);
+    $logs = m_db_query($sql, []);
     //
     $linkurl = m_link();
     $script = $_SERVER['SCRIPT_NAME'];
@@ -512,14 +512,14 @@ function m_mode__search2()
     $w  = array();
     $w2 = array();
     $words = explode(" ", $key);
+    $params = [];
     foreach ($words as $word) {
-        $word = m_db_escape($word);
-        $word = "%$word%";
-        $w[] = "body LIKE '$word'";
-        $w2[] = "title LIKE 'word'";
+        $w[] = "body LIKE ?";
+        $w2[] = "title LIKE ?";
+        $params[] = "%$word%";
     }
     $keys = '('.join(" AND ", $w2).')OR('.join(" AND ", $w).')';
-    $r   = m_db_query("SELECT * FROM logs WHERE $keys LIMIT 20");
+    $r   = m_db_query("SELECT * FROM logs WHERE $keys LIMIT 20", $params);
     $body  = "<item>";
     $body .= "<div class='node'><span class='root'>検索語句 [$key_]</span></div>";
     foreach ($r as $log) {

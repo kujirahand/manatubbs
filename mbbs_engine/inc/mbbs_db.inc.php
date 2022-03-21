@@ -19,8 +19,9 @@ function m_sqlite_open($dbfile, $mod) {
   $db = new PDO("sqlite:$dbfile");
   return $db;
 }
-function m_sqlite_exec($h, $query) {
-  return $h->exec($query);
+function m_sqlite_exec($h, $query, $params) {
+  $sth = $h->prepare($query);
+  return $sth->execute($params);
 }
 function m_sqlite_last_error($h) {
   return 0;
@@ -28,10 +29,11 @@ function m_sqlite_last_error($h) {
 function m_sqlite_error_string($h) {
   return "";
 }
-function m_sqlite_array_query($h, $query) {
-  $r = $h->query($query);
+function m_sqlite_array_query($h, $query, $params) {
+  $sth = $h->prepare($query);
+  $r = $sth->execute($params);
   if ($r) {
-    return $r->fetchAll();
+    return $sth->fetchAll();
   } else {
     return array();
   }
@@ -72,62 +74,61 @@ function m_db_get_last_error()
     return m_sqlite_error_string( m_sqlite_last_error($mbbs["db.handle"]) );
 }
 
-function m_db_query($query)
+function m_db_query($query, $params)
 {
     global $mbbs;
-    $res = m_sqlite_array_query($mbbs["db.handle"], $query);
+    $res = m_sqlite_array_query($mbbs["db.handle"], $query, $params);
     return $res;
 }
 
-function m_db_exec($query)
+function m_db_exec($query, $params)
 {
     global $mbbs;
-    $err = m_sqlite_exec($mbbs["db.handle"], $query);
+    $err = m_sqlite_exec($mbbs["db.handle"], $query, $params);
     if (!$err) {
         echo "[ERROR] ".m_db_get_last_error()."[$query]\n";
     }
     return $err;
 }
 
+/*
 function m_db_escape($s)
 {
   $s = str_replace("''", "''", $s);
   $s = str_replace("\\", "\\\\", $s);
   return $s;
 }
+ */
 
 function m_db_insert($table, $values)
 {
     // SQL を生成
     $key_a = array();
     $val_a = array();
+    $params = [];
     foreach ($values as $key => $val) {
-        $k = m_db_escape($key);
-        $v = m_db_escape($val);
-        $key_a[] = $k;
-        $val_a[] = is_numeric($v) ? $v : "'{$v}'";
+        $key_a[] = $key;
+        $val_a[] = '?';
+        $params[] = $val;
     }
     $key_s = join(",", $key_a);
     $val_s = join(",", $val_a);
     $s = "INSERT INTO {$table} ($key_s)VALUES($val_s)";
-    return m_db_exec($s);
+    return m_db_exec($s, $params);
 }
 
 function m_db_update($table, $values, $where, $where_str = "")
 {
     $v_a = array();
+    $params = [];
     foreach ($values as $key => $val) {
-        $k = m_db_escape($key);
-        $v = m_db_escape($val);
-        $v = is_numeric($v) ? $v : "'{$v}'";
-        $v_a[] = "$k=$v";
+        $v_a[] = "$key=?";
+        $params[] = $val;
     }
     $w_a = array();
     foreach ($where as $key => $val) {
-        $k = m_db_escape($key);
-        $v = m_db_escape($val);
-        $v = is_numeric($v) ? $v : "'{$v}'";
-        $w_a[] = "$k=$v";
+        $w_a[] = "$key=?";
+        $params[] = $val;
     }
     $v_s = join(",", $v_a);
     $w_s = join(" AND ", $w_a);
@@ -138,7 +139,7 @@ function m_db_update($table, $values, $where, $where_str = "")
         $w_s = "WHERE {$w_s}";
     }
     $s = "UPDATE $table SET $v_s $w_s";
-    return m_db_exec($s);
+    return m_db_exec($s, $params);
 }
 
 function m_db_last_insert_rowid()
@@ -155,7 +156,7 @@ function m_db_last_insert_rowid()
 function m_get_index($threadid, &$items)
 {
     $res = "<div class='indexbox'>\n";
-    $r = m_db_query("SELECT * FROM logs WHERE threadid={$threadid} ORDER BY ctime ASC");
+    $r = m_db_query("SELECT * FROM logs WHERE threadid=? ORDER BY ctime ASC", [$threadid]);
     $root = FALSE;
     foreach ($r as $log) {
         $logid    = intval($log["logid"]   );
@@ -195,7 +196,8 @@ function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
     // query threads
     $pager = "";
     $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
-    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT {$limit} OFFSET {$offset}");
+    $r = m_db_query(
+        "SELECT * FROM threads $where ORDER BY mtime DESC LIMIT ? OFFSET ?", [$limit, $offset]);
     if (count($r) == 0) {
         return "<div class='item'>ログがありません。</div>";
     }
@@ -250,8 +252,11 @@ EOS__;
     return $res;
 }
 
+// 利用が非推奨
 function m_show_all_text($title = "", $where_str = FALSE, $m_mode = "all")
 {
+    echo "非推奨のAPIを使っています ::: m_show_all_text\n";
+    
     // query all
     $page   = 0;
     $per    = m_info("threads.perpage");
@@ -265,7 +270,8 @@ function m_show_all_text($title = "", $where_str = FALSE, $m_mode = "all")
     // query threads
     $pager = "";
     $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
-    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT {$limit} OFFSET {$offset}");
+    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT ? OFFSET ?",
+        [$limit, $offset]);
     if (count($r) == 0) {
         return "* $title : ありません。\n";
     }
@@ -296,7 +302,7 @@ function m_show_tree()
     $script = m_info("script");
 
     $pager = "";
-    $r = m_db_query("SELECT * FROM threads ORDER BY mtime DESC LIMIT {$limit} OFFSET {$offset}");
+    $r = m_db_query("SELECT * FROM threads ORDER BY mtime DESC LIMIT ? OFFSET ?", [$limit, $offset]);
     if (count($r) == 0) {
         return "<div class='item'>ログがありません。</div>";
     }
@@ -333,14 +339,14 @@ function m_show_thread()
     $res = "";
 
     // check thread
-    $sql = "SELECT * FROM threads WHERE threadid=$threadid LIMIT 1";
-    $r = m_db_query($sql);
+    $sql = "SELECT * FROM threads WHERE threadid=? LIMIT 1";
+    $r = m_db_query($sql, [$threadid]);
     if (!$r) {
         m_show_error("スレッド id=$threadid はありません。"); return;
     }
     // get first log
-    $sql = "SELECT * FROM logs WHERE threadid=$threadid ORDER BY logid LIMIT 1";
-    $topr = m_db_query($sql);
+    $sql = "SELECT * FROM logs WHERE threadid=? ORDER BY logid LIMIT 1";
+    $topr = m_db_query($sql, [$threadid]);
     if (!$topr) {
         m_show_error("スレッド id=$threadid はありません。"); return;
     }
@@ -348,8 +354,8 @@ function m_show_thread()
     $top = m_get_log_item($topr[0]);
 
     // get record log
-    $sql = "SELECT * FROM logs WHERE threadid=$threadid AND logid != $logid ORDER BY logid DESC LIMIT $limit OFFSET $offset";
-    $items = m_db_query($sql);
+    $sql = "SELECT * FROM logs WHERE threadid=? AND logid != ? ORDER BY logid DESC LIMIT ? OFFSET ?";
+    $items = m_db_query($sql, [$threadid, $logid, $limit, $offset]);
     $pager = "";
     if ($page > 0) {
         $pager .= "<a href='{$script}?m=thread&p=$page&threadid=$threadid'>←前へ</a> ";
@@ -472,7 +478,7 @@ function m_show_log()
     // query thread
     $res = "";
     $logid = intval(m_param("logid", 0));
-    $r = m_db_query("SELECT * FROM logs WHERE logid={$logid} ORDER BY ctime");
+    $r = m_db_query("SELECT * FROM logs WHERE logid=? ORDER BY ctime", [$logid]);
     if (!$r) return "[no logid=$logid]";
     $cur_log = $r[0];
     // -----------------------------------------------------------------
