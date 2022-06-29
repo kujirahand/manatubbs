@@ -183,7 +183,7 @@ function m_get_index($threadid, &$items)
 function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
 {
     // query all
-    $page   = m_param("p", 1) - 1;
+    $page   = intval(m_param("p", 1)) - 1;
     $per    = m_info("threads.perpage");
     $offset = $per * $page;
     $limit  = $per + 1;
