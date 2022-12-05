@@ -64,11 +64,7 @@ function m_db_createTable($dbfile)
     $query  = file_get_contents($sql);
     $qa = explode(';', $query);
     foreach ($qa as $query) {
-        $result = m_sqlite_exec($h, $query, []);
-        if (!$result) {
-            $err = m_sqlite_error_string( m_sqlite_last_error($h) );
-            echo "DBの初期化に失敗しました。<br/>\n$err";
-        }
+        m_sqlite_exec($h, $query, []);
     }
     m_sqlite_close($h);
 }
