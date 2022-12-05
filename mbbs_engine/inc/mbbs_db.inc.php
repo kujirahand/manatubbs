@@ -4,6 +4,8 @@
 // いろはにほへと
 //----------------------------------------------------------------------
 // define("FILE_INIT_SQL","db/sql.txt");
+global $mbbs_db;
+$mbbs_db = NULL;
 
 function m_error_dbopen()
 {
@@ -19,7 +21,7 @@ function m_sqlite_open($dbfile, $mod) {
   $db = new PDO("sqlite:$dbfile");
   return $db;
 }
-function m_sqlite_exec($h, $query, $params) {
+function m_sqlite_exec($h, $query, $params = []) {
   $sth = $h->prepare($query);
   return $sth->execute($params);
 }
@@ -29,7 +31,7 @@ function m_sqlite_last_error($h) {
 function m_sqlite_error_string($h) {
   return "";
 }
-function m_sqlite_array_query($h, $query, $params) {
+function m_sqlite_array_query($h, $query, $params = []) {
   $sth = $h->prepare($query);
   $r = $sth->execute($params);
   if ($r) {
@@ -42,14 +44,14 @@ function m_sqlite_close($h) {
 }
 function m_initDB()
 {
-    global $mbbs;
+    global $mbbs_db;
     $dbfile = m_info("db.name", "db/manatubbs.db");
     if (!file_exists($dbfile)) {
         m_db_createTable($dbfile);
     }
     $h = m_sqlite_open($dbfile, 0604);
     if (!$h) { m_error_dbopen(); }
-    $mbbs["db.handle"] = &$h;
+    $mbbs_db = $h;
 }
 
 function m_db_createTable($dbfile)
@@ -60,31 +62,34 @@ function m_db_createTable($dbfile)
     $engine = dirname(__DIR__);
     $sql = "$engine/tpl/sql.txt";
     $query  = file_get_contents($sql);
-    $result = m_sqlite_exec($h, $query);
-    if (!$result) {
-        $err = m_sqlite_error_string( m_sqlite_last_error($h) );
-        echo "DBの初期化に失敗しました。<br/>\n$err";
+    $qa = explode(';', $query);
+    foreach ($qa as $query) {
+        $result = m_sqlite_exec($h, $query, []);
+        if (!$result) {
+            $err = m_sqlite_error_string( m_sqlite_last_error($h) );
+            echo "DBの初期化に失敗しました。<br/>\n$err";
+        }
     }
     m_sqlite_close($h);
 }
 
 function m_db_get_last_error()
 {
-    global $mbbs;
-    return m_sqlite_error_string( m_sqlite_last_error($mbbs["db.handle"]) );
+    global $mbbs_db;
+    return m_sqlite_error_string( m_sqlite_last_error($mbbs_db) );
 }
 
-function m_db_query($query, $params)
+function m_db_query($query, $params = [])
 {
-    global $mbbs;
-    $res = m_sqlite_array_query($mbbs["db.handle"], $query, $params);
+    global $mbbs_db;
+    $res = m_sqlite_array_query($mbbs_db, $query, $params);
     return $res;
 }
 
-function m_db_exec($query, $params)
+function m_db_exec($query, $params = [])
 {
-    global $mbbs;
-    $err = m_sqlite_exec($mbbs["db.handle"], $query, $params);
+    global $mbbs_db;
+    $err = m_sqlite_exec($mbbs_db, $query, $params);
     if (!$err) {
         echo "[ERROR] ".m_db_get_last_error()."[$query]\n";
     }
@@ -144,8 +149,8 @@ function m_db_update($table, $values, $where, $where_str = "")
 
 function m_db_last_insert_rowid()
 {
-    global $mbbs;
-    $id = $mbbs["db.handle"]->lastInsertId();
+    global $mbbs_db;
+    $id = $mbbs_db->lastInsertId();
     return $id;
 }
 
@@ -283,8 +288,8 @@ function m_show_all_text($title = "", $where_str = FALSE, $m_mode = "all")
         $status = ($row["status"]);
         $count = intval($row["count"]);
         $date = m_date($row["mtime"]);
-        $titlelink = "<a href='{$script}?m=thread&threadid=$threadid'>$title</a>";
-        $idlink = "<a href='{$script}?m=thread&threadid=$threadid'>@{$threadid}</a>";
+        $titlelink = "<a href='index.php?m=thread&threadid=$threadid'>$title</a>";
+        $idlink = "<a href='index.php?m=thread&threadid=$threadid'>@{$threadid}</a>";
         $res .= "- @{$threadid} $title\n";
     }
     return $res;

@@ -138,7 +138,7 @@ function m_build_form($form_array, $method = "get", $button = "送信", $flag_up
 EOS__;
 }
 
-function m_form_parts($caption, $name, $type, $attr = "", $value = "")
+function m_form_parts($caption, $name, $type, $attr = [], $value = "")
 {
     # $attr の値をを補完する
     $attr_init = array(
