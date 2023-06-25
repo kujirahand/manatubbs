@@ -69,6 +69,7 @@ function m_check_login() {
 
 function m_date($time)
 {
+    if (!is_numeric($time)) { return '---'; }
     $s = date("Y-m-d", $time);
     $h = "<span class='date'>$s</span>";
     if ($time > (time() - 60*60*24)) {
