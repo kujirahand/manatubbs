@@ -295,7 +295,7 @@ function m_show_all_text($title = "", $where_str = FALSE, $m_mode = "all")
 function m_show_tree()
 {
     // query all
-    $page   = m_param("p", 1) - 1;
+    $page   = intval(m_param("p", 1)) - 1;
     $per    = m_info("tree.perpage");
     $offset = $per * $page;
     $limit  = $per + 1;
