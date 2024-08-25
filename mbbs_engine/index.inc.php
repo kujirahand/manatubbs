@@ -12,10 +12,11 @@ require_once "inc/mbbs_form.inc.php";
 //----------------------------------------------------------------------
 // 初期設定の取り込み
 require_once "setting-check.inc.php";
-
-// --- login ?
+//----------------------------------------------------------------------
+// セッションを開始する
+session_start();
+// ログインを利用する場合
 if (isset($mbbs["use.login"]) && $mbbs["use.login"]) {
-  session_start();
   if (!m_is_login()) {
     if (m_param("m", "") == 'resource') {
       m_mode__resource(); exit;
@@ -184,6 +185,10 @@ function m_mode__log()
     $script = m_info("script_name");
     $msg  = htmlspecialchars(m_param("msg", ""));
     if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
+    if (!empty($_SESSION['mbbs.message'])) {
+        $msg = "<div class='msg'>".$_SESSION['mbbs.message']."</div>\n";
+        unset($_SESSION['mbbs.message']);
+    }
     $body  = $msg;
     $body .= m_show_log();
     $body .= "<br/>";
@@ -243,11 +248,6 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
     if (m_param('mbbs_user_title','') == "") {
         m_show_error("タイトルが未入力です。[戻る]キーで再入力ください。");
     }
-    /*
-    if (m_param('mbbs_user_editkey','') == "") {
-        m_show_error("編集キーが未入力です。[戻る]キーで再入力ください。");
-    }
-    */
     //--------------------
     // threads & logs
     //--------------------
@@ -374,8 +374,8 @@ function m_mode__write()
     mbbs_setcookie($log_v);
 
     $script = m_info("script_name");
-    $msg = urlencode("書き込みが完了しました。");
-    $jump = "$script?logid=$logid&m=log&msg=$msg";
+    $_SESSION['mbbs.message'] = "書き込みが完了しました。";
+    $jump = "$script?logid=$logid&m=log";
     header("Location: $jump");
     echo "<body><a href='$jump'>次へ</a></body>";
     $post_url = m_link(array("m=log","logid=$logid"));
