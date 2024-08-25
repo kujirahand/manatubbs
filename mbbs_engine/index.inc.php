@@ -481,9 +481,7 @@ function m_mode__editlog()
 function m_mode__rss()
 {
     header("Content-Type: application/xml; charset=UTF-8");
-    $sql = "SELECT * FROM logs ORDER BY ctime DESC LIMIT 20";
-    $logs = m_db_query($sql, []);
-    //
+    $logs = m_db_query("SELECT * FROM logs ORDER BY ctime DESC LIMIT 20", []);
     $linkurl = m_link();
     $script = $_SERVER['SCRIPT_NAME'];
     $logourl = preg_replace("#{$script}#","logo.png",$linkurl);
@@ -526,8 +524,8 @@ function m_mode__search2()
         $w2[] = "title LIKE ?";
         $params[] = "%$word%";
     }
-    $keys = '('.join(" AND ", $w2).')OR('.join(" AND ", $w).')';
-    $r   = m_db_query("SELECT * FROM logs WHERE $keys LIMIT 20", $params);
+    $searchKeyNames = '('.join(" AND ", $w2).')OR('.join(" AND ", $w).')';
+    $r   = m_db_query("SELECT * FROM logs WHERE $searchKeyNames LIMIT 20", $params);
     $body  = "<item>";
     $body .= "<div class='node'><span class='root'>検索語句 [$key_]</span></div>";
     foreach ($r as $log) {

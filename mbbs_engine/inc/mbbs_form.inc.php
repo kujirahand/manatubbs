@@ -20,8 +20,7 @@ function m_show_form($caption = "", $formmode = "write")
     $ff_name    = m_cookie("mbbs_name", "");
     if ($formmode == "editlog") {
         $logid = intval(m_param('logid', 0));
-        $sql = "SELECT * FROM logs WHERE logid=?";
-        $r = m_db_query($sql,[$logid]);
+        $r = m_db_query("SELECT * FROM logs WHERE logid=?",[$logid]);
         if (empty($r[0]["logid"])) {
             m_show_error("{$logid} は存在しない id です。");
         }

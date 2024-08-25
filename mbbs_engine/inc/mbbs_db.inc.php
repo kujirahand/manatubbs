@@ -92,15 +92,6 @@ function m_db_exec($query, $params = [])
     return $err;
 }
 
-/*
-function m_db_escape($s)
-{
-  $s = str_replace("''", "''", $s);
-  $s = str_replace("\\", "\\\\", $s);
-  return $s;
-}
- */
-
 function m_db_insert($table, $values)
 {
     // SQL を生成
@@ -197,8 +188,7 @@ function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
     // query threads
     $pager = "";
     $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
-    $r = m_db_query(
-        "SELECT * FROM threads $where ORDER BY mtime DESC LIMIT ? OFFSET ?", [$limit, $offset]);
+    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT ? OFFSET ?", [$limit, $offset]);
     if (count($r) == 0) {
         return "<div class='item'>ログがありません。</div>";
     }
@@ -271,8 +261,7 @@ function m_show_all_text($title = "", $where_str = FALSE, $m_mode = "all")
     // query threads
     $pager = "";
     $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
-    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT ? OFFSET ?",
-        [$limit, $offset]);
+    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT ? OFFSET ?", [$limit, $offset]);
     if (count($r) == 0) {
         return "* $title : ありません。\n";
     }
@@ -340,14 +329,12 @@ function m_show_thread()
     $res = "";
 
     // check thread
-    $sql = "SELECT * FROM threads WHERE threadid=? LIMIT 1";
-    $r = m_db_query($sql, [$threadid]);
+    $r = m_db_query("SELECT * FROM threads WHERE threadid=? LIMIT 1", [$threadid]);
     if (!$r) {
         m_show_error("スレッド id=$threadid はありません。"); return;
     }
     // get first log
-    $sql = "SELECT * FROM logs WHERE threadid=? ORDER BY logid LIMIT 1";
-    $topr = m_db_query($sql, [$threadid]);
+    $topr = m_db_query("SELECT * FROM logs WHERE threadid=? ORDER BY logid LIMIT 1", [$threadid]);
     if (!$topr) {
         m_show_error("スレッド id=$threadid はありません。"); return;
     }
@@ -355,8 +342,7 @@ function m_show_thread()
     $top = m_get_log_item($topr[0]);
 
     // get record log
-    $sql = "SELECT * FROM logs WHERE threadid=? AND logid != ? ORDER BY logid DESC LIMIT ? OFFSET ?";
-    $items = m_db_query($sql, [$threadid, $logid, $limit, $offset]);
+    $items = m_db_query("SELECT * FROM logs WHERE threadid=? AND logid != ? ORDER BY logid DESC LIMIT ? OFFSET ?", [$threadid, $logid, $limit, $offset]);
     $pager = "";
     if ($page > 0) {
         $pager .= "<a href='{$script}?m=thread&p=$page&threadid=$threadid'>←前へ</a> ";
