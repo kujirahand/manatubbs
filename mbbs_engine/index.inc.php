@@ -2,7 +2,7 @@
 //----------------------------------------------------------------------
 // manatubbs (main library)
 //----------------------------------------------------------------------
-define("MBBS_VER", "1.58");
+define("MBBS_VER", "1.59");
 $mbbs['script_name'] = 'index.php'; // force change setting
 //----------------------------------------------------------------------
 // ライブラリの取り込み
@@ -269,7 +269,7 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
     }
     $log_v['threadid']  = intval($log_v['threadid']);
     $log_v['parentid']  = intval($log_v['parentid']);
-    $log_v['ip']        = $_SERVER['SERVER_ADDR'];
+    $log_v['ip'] = empty($_SERVER['REMOTE_ADDR']) ? "" : $_SERVER['REMOTE_ADDR'];
 }
 
 function m_mode__write_strim(&$title, &$name)
@@ -339,8 +339,13 @@ function m_mode__write()
         $file_size = $_FILES['attach']['size'];
         $file_temp = $_FILES['attach']['tmp_name'];
         $file_err  = $_FILES['attach']['error'];
-        $name       = $logid."-".urlencode(basename($file_name));
-        $name       = str_replace("%", "", $name);
+        // ファイルから拡張子+αだけを得る
+        $file_name = trim($file_name);
+        $f_ext = preg_match('#([\.a-zA-Z0-9]+)$#', $file_name, $m) ? $m[1] : ".txt";
+        $name       = "{$logid}-{$f_ext}";
+        if (strlen($name) > 100) { // 最後の20文字だけに変換
+            $name = substr($name, strlen($name) - 20, 20);
+        }
         $uploadfile = m_info('upload.dir').'/'.$name;
         $uploadfile = str_replace('//', '/', $uploadfile);
         $attach     = "(attach:$name)";
@@ -373,17 +378,18 @@ function m_mode__write()
     $jump = "$script?logid=$logid&m=log&msg=$msg";
     header("Location: $jump");
     echo "<body><a href='$jump'>次へ</a></body>";
+    $post_url = m_link(array("m=log","logid=$logid"));
+    $post_url = str_replace("&amp;", "&", $post_url); // raw url
     // sendmail
     if (m_info("mail.to", FALSE)) {
         $url  = m_link();
-        $to      = m_info("mail.to");
+        $to = m_info("mail.to");
         $subject = m_info("mail.title") . "($logid)" . $log_v["title"];
-        $body    =
-                    m_info("TITLE")."への書き込み:\n".
-                    '[URL] '.$url."?logid={$logid}&m=log\n".
-                    $log_v["name"]." さんより\n".
-                    $log_v["body"]."\n".
-                    "[ip] {$_SERVER['REMOTE_ADDR']}\n";
+        $body  = m_info("TITLE")."への書き込み:\n".
+            "[URL] $post_url\n".
+            $log_v["name"]." さんより\n".
+            $log_v["body"]."\n".
+            "[ip] {$_SERVER['REMOTE_ADDR']}\n";
         $from = m_info("mail.from","");
         $cc   = m_info("mail.cc","");
         $bcc  = m_info("mail.bcc","");
@@ -393,6 +399,8 @@ Bcc:$bcc
 ";
         @mb_send_mail($to, $subject, $body,$header);
     }
+    // discord
+    m_discord_webhook($log_v["title"], $log_v["body"], $log_v["name"], $post_url);
 }
 
 function mbbs_setcookie($log_v)

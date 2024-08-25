@@ -14,7 +14,7 @@ $mbbs["users"]        = "user1:pass1,user2:pass2,user3:pass3";
 // カンマで区切って user1:pass,user2:pass,user3:pass のように書く
 
 /**
- * データベースの設定
+ * データベースの設定(SQLite3)
  */
 $root = dirname(__FILE__);
 $mbbs["db.name"] = "{$root}/db/manatubbs.sqlite3";
@@ -55,6 +55,13 @@ $mbbs["mail.cc"]    = "";
 $mbbs["mail.bcc"]   = "";
 $mbbs["mail.from"]  = "";
 $mbbs["mail.title"] = "[manatubbs]";
+
+/**
+ * Discordへの通知機能
+ * ウェブフックのURLを取得して以下に設定してください。
+ */
+$mbbs["discord.webhook_url"] = "";
+$mbbs["discord.title"] = "[manatubbs]";
 
 /**
  * フィールドの定義

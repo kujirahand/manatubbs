@@ -32,17 +32,21 @@ include_once $file_main;
 
 //----------------------------------------------------------------------
 // 設定で使われる関数
-function m_url($mod = "", $param_str = "") {
+function m_url($mod = "", $param_str = "")
+{
   $script = 'index.php';
   $r = [];
-  if ($mod != '') { $r[] = "m=$mod"; }
-  if ($param_str != "") { $r[] = $param_str; }
-  $url = $script."?".join("&amp;", $r);
+  if ($mod != '') {
+    $r[] = "m=$mod";
+  }
+  if ($param_str != "") {
+    $r[] = $param_str;
+  }
+  $url = $script . "?" . join("&amp;", $r);
   return $url;
 }
 function m_info($param, $default = FALSE)
 {
-    global $mbbs;
-    return empty($mbbs[$param]) ? $default : $mbbs[$param];
+  global $mbbs;
+  return empty($mbbs[$param]) ? $default : $mbbs[$param];
 }
-

@@ -18,13 +18,15 @@ function m_cookie($key, $default = FALSE)
     return empty($_COOKIE[$key]) ? $default : $_COOKIE[$key];
 }
 
-function m_is_login() {
+function m_is_login()
+{
   global $mbbs;
   if (isset($_SESSION['mbbs_login']) && $_SESSION['mbbs_login'] > 0) {
     return TRUE;
   }
   return FALSE;
 }
+
 function m_set_login($islogin) {
   if ($islogin) {
     $_SESSION['mbbs_login'] = time();
@@ -263,18 +265,49 @@ function m_show_error($msg)
   exit;
 }
 
-function remove_magic_quotes_gpc()
+function m_discord_webhook($title, $body, $username, $url)
 {
-/*
-    if (get_magic_quotes_gpc()) {
-        foreach ($_GET as $key => $val) {
-            $_GET[$key] = stripslashes($val);
-        }
-        foreach ($_POST as $key => $val) {
-            $_POST[$key] = stripslashes($val);
-        }
+    // check webhook url
+    $discord_webhook_url = m_info('discord.webhook_url', '');
+    if ($discord_webhook_url == '') {
+        return;
     }
-*/
+    //メッセージの内容を定義
+    $contents = "{$username}さんが「{$title}」を投稿しました。\n{$body}\n[URL] {$url}";
+    $message = array(
+        'username' => m_info('discord_webhook_name', '[manatubbs]'),
+        'content'  => $contents
+    );
+    $message_json = json_encode($message);
+    // curlを利用してポスト(非同期)
+    $curl_command = sprintf(
+        'curl -X POST %s -H "Content-Type: application/json; charset=utf-8" -d %s --insecure > /dev/null 2>&1 &',
+        escapeshellarg($discord_webhook_url),
+        escapeshellarg($message_json)
+    );
+    @exec($curl_command);
 }
 
-?>
+if (!function_exists('m_url')) {
+    function m_url($mod = "", $param_str = "")
+    {
+        $script = 'index.php';
+        $r = [];
+        if ($mod != '') {
+            $r[] = "m=$mod";
+        }
+        if ($param_str != "") {
+            $r[] = $param_str;
+        }
+        $url = $script . "?" . join("&amp;", $r);
+        return $url;
+    }
+}
+
+if (!function_exists('m_info')) {
+    function m_info($param, $default = FALSE)
+    {
+        global $mbbs;
+        return empty($mbbs[$param]) ? $default : $mbbs[$param];
+    }
+}
