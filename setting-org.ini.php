@@ -56,6 +56,12 @@ $mbbs["ng_words"] = [
 ];
 
 /**
+ * 読み取り専用モード設定
+ * メンテナンス時などに書き込みを禁止する場合は TRUE に設定
+ */
+$mbbs["readonly"] = FALSE;
+
+/**
  * アップロードの設定
  */
 $mbbs["upload.maxsize"]      = 1024 * 300; // 300KB

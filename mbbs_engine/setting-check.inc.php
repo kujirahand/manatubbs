@@ -37,6 +37,14 @@ $defvalue["bot.q"]           = "「真夏」の読み方を記入してくださ
 $defvalue["bot.a"]           = "まなつ";
 $defvalue["bot.enabled"]     = TRUE;
 
+$defvalue["ng_words"] = [];
+
+
+/**
+ * 読み取り専用モード設定
+ */
+$defvalue["readonly"]        = FALSE;
+
 /**
  * アップロードの設定
  */

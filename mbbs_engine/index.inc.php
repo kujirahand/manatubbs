@@ -225,6 +225,13 @@ function m_mode__edit()
 
 function m_mode__write_checkParam(&$thread_v, &$log_v)
 {
+    //--------------------
+    // 読み取り専用モードチェック
+    //--------------------
+    if (m_info("readonly", FALSE)) {
+        m_show_error("メンテナンス中のため、現在書き込みはできません。");
+    }
+    
 	//--------------------
     // 簡易 bot チェック
 	//--------------------

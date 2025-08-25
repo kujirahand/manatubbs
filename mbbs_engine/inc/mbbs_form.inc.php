@@ -12,6 +12,11 @@
  */
 function m_show_form($caption = "", $formmode = "write")
 {
+    // 読み取り専用モードチェック
+    if (m_info("readonly", FALSE)) {
+        return "<div class='readonly-notice'><p>📄 メンテナンス中のため現在読み込み専用です。</p></div>";
+    }
+    
     if ($caption == "") { $caption = "書き込みフォーム"; }
     global $mbbs;
     extract($mbbs);
