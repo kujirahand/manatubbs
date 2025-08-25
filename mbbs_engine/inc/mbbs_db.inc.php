@@ -87,7 +87,12 @@ function m_db_exec($query, $params = [])
     global $mbbs_db;
     $err = m_sqlite_exec($mbbs_db, $query, $params);
     if (!$err) {
-        echo "[ERROR] ".m_db_get_last_error()."[$query]\n";
+        // セキュリティ向上：詳細なエラーメッセージを本番環境では非表示
+        if (m_info('debug.mode', false)) {
+            echo "[ERROR] ".m_db_get_last_error()."[$query]\n";
+        } else {
+            error_log("Database error: ".m_db_get_last_error()." Query: $query");
+        }
     }
     return $err;
 }

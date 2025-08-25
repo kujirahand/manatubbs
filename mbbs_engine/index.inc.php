@@ -56,26 +56,63 @@ function m_mode__resource()
     if ($f == '') {
       echo "no file"; return;
     }
-    $f = str_replace('..', '__', $f);
-    $path = __DIR__."/resource/{$f}";
-    if (!file_exists($path)) {
+    
+    // パストラバーサル攻撃対策：ファイル名のサニタイズ
+    $f = basename($f); // ディレクトリトラバーサルを防ぐ
+    $f = preg_replace('/[^a-zA-Z0-9._-]/', '', $f); // 安全な文字のみ許可
+    
+    if ($f == '') {
+      echo "invalid file name"; return;
+    }
+    
+    $resource_dir = __DIR__."/resource";
+    $path = $resource_dir."/".$f;
+    
+    // realpathで正規化してディレクトリトラバーサルを完全に防ぐ
+    $real_path = realpath($path);
+    $real_resource_dir = realpath($resource_dir);
+    
+    if ($real_path === false || strpos($real_path, $real_resource_dir) !== 0) {
+      echo "file access denied"; return;
+    }
+    
+    if (!file_exists($real_path)) {
       echo "file not found"; return;
     }
-    if (!preg_match('#\.([a-z]+)$#', $f, $m)) {
+    
+    if (!preg_match('#\.([a-z]+)$#i', $f, $m)) {
       echo "bad file name"; return;
     }
-    $ext = $m[1];
-    if ($ext === 'css') {
-        header('content-type: text/css; charset=utf-8');
-    } else if ($ext === 'png') {
-        header('content-type: image/png');
-    } else if ($ext === 'jpg' || $ext === 'jpeg') {
-      header('content-type: text/css; charset=utf-8');
-    } else {
+    
+    $ext = strtolower($m[1]);
+    $allowed_extensions = ['css', 'png', 'jpg', 'jpeg', 'gif', 'js'];
+    
+    if (!in_array($ext, $allowed_extensions)) {
       echo "The resource type is not allowed.";
       return;
     }
-    echo @file_get_contents($path);
+    
+    // 適切なContent-Typeを設定
+    switch ($ext) {
+        case 'css':
+            header('content-type: text/css; charset=utf-8');
+            break;
+        case 'png':
+            header('content-type: image/png');
+            break;
+        case 'jpg':
+        case 'jpeg':
+            header('content-type: image/jpeg');
+            break;
+        case 'gif':
+            header('content-type: image/gif');
+            break;
+        case 'js':
+            header('content-type: application/javascript; charset=utf-8');
+            break;
+    }
+    
+    echo @file_get_contents($real_path);
 }
 
 function m_mode__all()
@@ -323,13 +360,15 @@ function m_mode__write()
         // threads
         $thread_v["title"] = "$title ($name)";
         if (!m_db_insert("threads", $thread_v)) {
-            echo m_db_get_last_error();
+            error_log("Database insert error in threads: " . m_db_get_last_error());
+            m_show_error("データベースエラーが発生しました。");
             exit;
         }
         $threadid = m_db_last_insert_rowid();
         $log_v["threadid"] = $threadid;
         if (!m_db_insert("logs", $log_v)) {
-            echo m_db_get_last_error();
+            error_log("Database insert error in logs: " . m_db_get_last_error());
+            m_show_error("データベースエラーが発生しました。");
             exit;
         }
         $logid = m_db_last_insert_rowid();
@@ -349,13 +388,15 @@ function m_mode__write()
         $old["title"] = trim($a[0]);
         $thread_v["title"] = $old["title"]." --> "."{$log_v['title']}({$log_v['name']})";
         if (!m_db_update("threads", $thread_v,array("threadid"=>$threadid))) {
-            echo m_db_get_last_error();
+            error_log("Database update error in threads: " . m_db_get_last_error());
+            m_show_error("データベースエラーが発生しました。");
             exit;
         }
 
         $log_v["threadid"] = $threadid;
         if (!m_db_insert("logs", $log_v)) {
-            echo m_db_get_last_error();
+            error_log("Database insert error in logs (reply): " . m_db_get_last_error());
+            m_show_error("データベースエラーが発生しました。");
             exit;
         }
         $logid = m_db_last_insert_rowid();
@@ -366,34 +407,93 @@ function m_mode__write()
         $file_size = $_FILES['attach']['size'];
         $file_temp = $_FILES['attach']['tmp_name'];
         $file_err  = $_FILES['attach']['error'];
-        // ファイルから拡張子+αだけを得る
-        $file_name = trim($file_name);
-        $f_ext = preg_match('#([\.a-zA-Z0-9]+)$#', $file_name, $m) ? $m[1] : ".txt";
-        $name       = "{$logid}-{$f_ext}";
-        if (strlen($name) > 100) { // 最後の20文字だけに変換
-            $name = substr($name, strlen($name) - 20, 20);
+        
+        // アップロードエラーチェック
+        if ($file_err !== UPLOAD_ERR_OK) {
+            m_db_exec("rollback", []);
+            m_show_error("ファイルアップロードでエラーが発生しました。"); exit;
         }
-        $uploadfile = m_info('upload.dir').'/'.$name;
-        $uploadfile = str_replace('//', '/', $uploadfile);
-        $attach     = "(attach:$name)";
+        
+        // ファイルサイズチェック
         if (intval(m_info('upload.maxsize')) < $file_size) {
             m_db_exec("rollback", []);
             m_show_error("ファイルサイズが大きすぎます。戻るボタンでやり直してください。"); exit;
         }
-        if (!preg_match(m_info("upload.format"), $file_name)) {
+        
+        // ファイル名のサニタイズ
+        $file_name = trim($file_name);
+        $file_name = preg_replace('/[^\w\-_\.]/', '', $file_name); // 安全な文字のみ許可
+        
+        // 拡張子チェック（より厳密に）
+        if (!preg_match('#\.([a-zA-Z0-9]+)$#', $file_name, $m)) {
             m_db_exec("rollback", []);
-            m_show_error("アップロードできない形式です。"); exit;
+            m_show_error("不正なファイル名です。"); exit;
         }
+        
+        $f_ext = strtolower($m[1]);
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+        
+        if (!in_array($f_ext, $allowed_extensions)) {
+            m_db_exec("rollback", []);
+            m_show_error("アップロードできない形式です。画像ファイル（jpg, png, gif）のみ許可されています。"); exit;
+        }
+        
+        // MIMEタイプチェック
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime_type = finfo_file($finfo, $file_temp);
+        finfo_close($finfo);
+        
+        $allowed_mimes = [
+            'image/jpeg' => ['jpg', 'jpeg'],
+            'image/png' => ['png'],
+            'image/gif' => ['gif']
+        ];
+        
+        $mime_valid = false;
+        foreach ($allowed_mimes as $mime => $exts) {
+            if ($mime_type === $mime && in_array($f_ext, $exts)) {
+                $mime_valid = true;
+                break;
+            }
+        }
+        
+        if (!$mime_valid) {
+            m_db_exec("rollback", []);
+            m_show_error("不正なファイル形式です。画像ファイルをアップロードしてください。"); exit;
+        }
+        
+        // 安全なファイル名を生成
+        $safe_name = $logid . "_" . uniqid() . "." . $f_ext;
+        $uploadfile = m_info('upload.dir').'/'.$safe_name;
+        $uploadfile = str_replace('//', '/', $uploadfile);
+        
+        // アップロードディレクトリの作成と権限チェック
+        $upload_dir = m_info('upload.dir');
+        if (!is_dir($upload_dir)) {
+            if (!mkdir($upload_dir, 0755, true)) {
+                m_db_exec("rollback", []);
+                m_show_error("アップロードディレクトリの作成に失敗しました。"); exit;
+            }
+        }
+        
+        if (!is_writable($upload_dir)) {
+            m_db_exec("rollback", []);
+            m_show_error("アップロードディレクトリに書き込み権限がありません。"); exit;
+        }
+        
         if (!move_uploaded_file($file_temp, $uploadfile)) {
             m_db_exec("rollback", []);
             m_show_error("アップロードに失敗しました。"); exit;
         }
-        // 権限を読み込み可能に変更する ---
-        // chmod($uploadfile,0644);
-        // ---
+        
+        // アップロードされたファイルの権限を読み込み専用に設定
+        chmod($uploadfile, 0644);
+        
+        $attach = "(attach:{$safe_name})";
         $log_v["body"] = $log_v["body"]."\n".$attach."\n";
         if (!m_db_update("logs", $log_v, array("logid"=>$logid))) {
-            echo m_db_get_last_error();
+            error_log("Database update error in logs (attachment): " . m_db_get_last_error());
+            m_show_error("データベースエラーが発生しました。");
             exit;
         }
     }
@@ -541,32 +641,83 @@ function m_mode__search2()
     if ($key == "") {
         m_show_error("検索語句が指定されていません。");
     }
-    $key_ = htmlspecialchars($key);
-    $w  = array();
-    $w2 = array();
-    $words = explode(" ", $key);
-    $params = [];
+    
+    // 入力値のサニタイズ
+    $key = trim($key);
+    if (strlen($key) > 100) { // 検索語句の長さ制限
+        m_show_error("検索語句が長すぎます。");
+    }
+    
+    $key_ = htmlspecialchars($key, ENT_QUOTES, 'UTF-8');
+    
+    // 検索語句を安全に分割（空白文字で区切り、空要素を除去）
+    $words = array_filter(array_map('trim', explode(" ", $key)), 'strlen');
+    
+    if (empty($words)) {
+        m_show_error("有効な検索語句がありません。");
+    }
+    
+    // 検索語句数の制限（DoS攻撃対策）
+    if (count($words) > 10) {
+        m_show_error("検索語句が多すぎます。10個以下にしてください。");
+    }
+    
+    $w_body = array();
+    $w_title = array();
+    $params = array();
+    
+    // 各単語に対してプレースホルダーを準備
     foreach ($words as $word) {
-        $w[] = "body LIKE ?";
-        $w2[] = "title LIKE ?";
-        $params[] = "%$word%";
+        if (strlen($word) < 1) continue; // 1文字未満の検索語は除外
+        
+        $w_body[] = "body LIKE ?";
+        $w_title[] = "title LIKE ?";
+        $params[] = "%".addcslashes($word, '%_\\')."%"; // LIKE特殊文字をエスケープ
+        $params[] = "%".addcslashes($word, '%_\\')."%"; // titleとbodyで2回追加
     }
-    $searchKeyNames = '('.join(" AND ", $w2).')OR('.join(" AND ", $w).')';
-    $r   = m_db_query("SELECT * FROM logs WHERE $searchKeyNames LIMIT 20", $params);
-    $body  = "<item>";
+    
+    if (empty($w_body)) {
+        m_show_error("有効な検索語句がありません。");
+    }
+    
+    // 安全なクエリ構築
+    $title_condition = '('.join(" AND ", $w_title).')';
+    $body_condition = '('.join(" AND ", $w_body).')';
+    $where_clause = "$title_condition OR $body_condition";
+    
+    // パラメータを複製（title用とbody用）
+    $final_params = array();
+    foreach ($words as $word) {
+        if (strlen($word) < 1) continue;
+        $escaped_word = "%".addcslashes($word, '%_\\')."%";
+        $final_params[] = $escaped_word; // title用
+    }
+    foreach ($words as $word) {
+        if (strlen($word) < 1) continue;
+        $escaped_word = "%".addcslashes($word, '%_\\')."%";
+        $final_params[] = $escaped_word; // body用
+    }
+    
+    $query = "SELECT * FROM logs WHERE $where_clause ORDER BY mtime DESC LIMIT 20";
+    $r = m_db_query($query, $final_params);
+    
+    $body = "<item>";
     $body .= "<div class='node'><span class='root'>検索語句 [$key_]</span></div>";
-    foreach ($r as $log) {
-        $logid = $log["logid"];
-        $title = htmlspecialchars($log["title"]);
-        $name  = htmlspecialchars($log["name"]);
-        $link = "./{$script}?m=log&logid={$logid}";
-        $mtime = date("Y-m-d", $log["mtime"]);
-        $date = "<span class='date'>({$mtime})</span>";
-        $body .= "<div class='node'>(<a href='{$link}'>#{$logid}</a>) <a href='{$link}'>$title</a> / $name $date</div>";
-    }
-    if (count($r) == 0) {
+    
+    if (!empty($r)) {
+        foreach ($r as $log) {
+            $logid = intval($log["logid"]);
+            $title = htmlspecialchars($log["title"], ENT_QUOTES, 'UTF-8');
+            $name  = htmlspecialchars($log["name"], ENT_QUOTES, 'UTF-8');
+            $link = "./{$script}?m=log&amp;logid={$logid}";
+            $mtime = date("Y-m-d", $log["mtime"]);
+            $date = "<span class='date'>({$mtime})</span>";
+            $body .= "<div class='node'>(<a href='{$link}'>#{$logid}</a>) <a href='{$link}'>$title</a> / $name $date</div>";
+        }
+    } else {
         $body .= "合致する語句はありませんでした。";
     }
+    
     // ヘッダを表示
     include "tpl/header.tpl.php";
     // 本文
