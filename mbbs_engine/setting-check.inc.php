@@ -112,6 +112,8 @@ $defvalue["menubar"][] = array("type"=>"-");
 $defvalue["menubar"][] = array("label"=>"検索",     "link"=>m_url("search"));
 $defvalue["menubar"][] = array("label"=>"RSS",      "link"=>m_url("rss"));
 $defvalue["menubar"][] = array("type"=>"-");
+$defvalue["menubar"][] = array("label"=>"管理",     "link"=>m_url("admin"));
+$defvalue["menubar"][] = array("type"=>"-");
 $defvalue["menubar"][] = array("type"=>"html",      "link"=>m_info("HOME"));
 
 // 最低限必要な設定をチェックする

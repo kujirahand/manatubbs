@@ -135,5 +135,7 @@ $mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("label"=>"検索",     "link"=>m_url("search"));
 $mbbs["menubar"][] = array("label"=>"RSS",      "link"=>m_url("rss"));
 $mbbs["menubar"][] = array("type"=>"-");
+$mbbs["menubar"][] = array("label"=>"管理",     "link"=>m_url("admin"));
+$mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("type"=>"html",      "link"=>m_info("HOME"));
 
