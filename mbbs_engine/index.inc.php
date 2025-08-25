@@ -248,6 +248,26 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
     if (m_param('mbbs_user_title','') == "") {
         m_show_error("タイトルが未入力です。[戻る]キーで再入力ください。");
     }
+    
+    //--------------------
+    // NGワードチェック
+    //--------------------
+    $ng_words = m_info('ng_words', []);
+    if (!empty($ng_words)) {
+        $title = m_param('mbbs_user_title', '');
+        $body = m_param('mbbs_user_body', '');
+        $name = m_param('mbbs_user_name', '');
+        
+        // タイトル、本文、名前をチェック対象とする
+        $check_text = $title . ' ' . $body . ' ' . $name;
+        
+        foreach ($ng_words as $ng_word) {
+            if (!empty($ng_word) && mb_strpos($check_text, $ng_word) !== false) {
+                m_show_error("投稿内容に禁止されている単語が含まれています。内容を確認の上、再度投稿してください。");
+            }
+        }
+    }
+    
     //--------------------
     // threads & logs
     //--------------------

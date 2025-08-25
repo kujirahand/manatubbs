@@ -2,7 +2,7 @@
 
 global $mbbs;
 extract($mbbs);
-$linkurl = "//".$_SERVER["HTTP_HOST"]. $_SERVER["SCRIPT_NAME"];
+$linkurl = "//" . $_SERVER["HTTP_HOST"] . "/" . ltrim($_SERVER["SCRIPT_NAME"], "/");
 
 $engine = dirname(__DIR__);
 $mtime = filemtime("$engine/resource/mbbs.css");

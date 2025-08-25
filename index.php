@@ -15,7 +15,7 @@ $mbbs['dir.engine'] = __DIR__.'/mbbs_engine';
 // 初期設定の取り込み
 $setting_user_file = __DIR__.'/setting-user.ini.php';
 if (!file_exists($setting_user_file)) {
-  $readme = "https://github.com/kujirahand/nadesiko3/blob/master/README.md";
+  $readme = "https://github.com/kujirahand/manatubbs";
   echo "<html><body><h1><a href=\"$readme\">→設定ファイルを配置してください。</a></h1></body></html>";
   exit;
 }
@@ -45,6 +45,7 @@ function m_url($mod = "", $param_str = "")
   $url = $script . "?" . join("&amp;", $r);
   return $url;
 }
+
 function m_info($param, $default = FALSE)
 {
   global $mbbs;
