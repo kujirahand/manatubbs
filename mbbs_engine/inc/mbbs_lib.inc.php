@@ -45,6 +45,9 @@ function m_check_login() {
     if (!m_csrf_verify_token($csrf_token)) {
       $msg = "セキュリティトークンが無効です。ページを再読み込みしてから再度お試しください。";
     } else {
+      // トークンを使用済みにマーク
+      m_csrf_mark_token_used();
+      
       $user = trim($_POST['user']);
       $pass = trim($_POST['pass']);
       // check conf
@@ -243,9 +246,19 @@ function m_password_to_sha($pass)
  */
 function m_csrf_generate_token()
 {
-    if (!isset($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    // 既存のトークンがあり、まだ有効期限内なら再利用
+    if (isset($_SESSION['csrf_token']) && isset($_SESSION['csrf_token_time'])) {
+        $token_age = time() - $_SESSION['csrf_token_time'];
+        if ($token_age < 3600) { // 1時間以内なら再利用
+            return $_SESSION['csrf_token'];
+        }
     }
+    
+    // 新しいトークンを生成
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token_time'] = time();
+    $_SESSION['csrf_token_used'] = false; // 使用フラグをリセット
+    
     return $_SESSION['csrf_token'];
 }
 
@@ -254,10 +267,35 @@ function m_csrf_generate_token()
  */
 function m_csrf_verify_token($token)
 {
-    if (!isset($_SESSION['csrf_token'])) {
+    if (!isset($_SESSION['csrf_token']) || !isset($_SESSION['csrf_token_time'])) {
         return false;
     }
-    return hash_equals($_SESSION['csrf_token'], $token);
+    
+    // トークンの有効期限チェック（1時間）
+    $token_age = time() - $_SESSION['csrf_token_time'];
+    if ($token_age > 3600) {
+        return false;
+    }
+    
+    // 既に使用済みのトークンかチェック
+    if (isset($_SESSION['csrf_token_used']) && $_SESSION['csrf_token_used']) {
+        return false;
+    }
+    
+    // トークンの値を検証
+    if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        return false;
+    }
+    
+    return true;
+}
+
+/**
+ * CSRF対策: トークンを使用済みにマークする
+ */
+function m_csrf_mark_token_used()
+{
+    $_SESSION['csrf_token_used'] = true;
 }
 
 /**
@@ -266,6 +304,8 @@ function m_csrf_verify_token($token)
 function m_csrf_clear_token()
 {
     unset($_SESSION['csrf_token']);
+    unset($_SESSION['csrf_token_time']);
+    unset($_SESSION['csrf_token_used']);
 }
 
 function m_logid_embedLink($m)

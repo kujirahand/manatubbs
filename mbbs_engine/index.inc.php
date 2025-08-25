@@ -277,6 +277,9 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
         m_show_error("セキュリティトークンが無効です。ページを再読み込みしてから再度お試しください。");
     }
     
+    // トークンを使用済みにマーク（重複投稿防止）
+    m_csrf_mark_token_used();
+    
 	//--------------------
     // 簡易 bot チェック
 	//--------------------
@@ -507,7 +510,7 @@ function m_mode__write()
     }
     m_db_exec("commit", []);
     
-    // CSRF トークンをクリア（ワンタイム使用のため）
+    // CSRF トークンをクリア（新しいトークンを生成するため）
     m_csrf_clear_token();
     
     mbbs_setcookie($log_v);
@@ -555,17 +558,90 @@ function mbbs_setcookie($log_v)
 function m_mode__editlog()
 {
     //--------------------
-    // CSRF対策
+    // CSRF対策（編集用）
     //--------------------
     $csrf_token = m_param('csrf_token', '');
     if (!m_csrf_verify_token($csrf_token)) {
         m_show_error("セキュリティトークンが無効です。ページを再読み込みしてから再度お試しください。");
     }
     
-    // 編集
+    // トークンを使用済みにマーク（重複投稿防止）
+    m_csrf_mark_token_used();
+    
+    //--------------------
+    // 読み取り専用モードチェック
+    //--------------------
+    if (m_info("readonly", FALSE)) {
+        m_show_error("メンテナンス中のため、現在書き込みはできません。");
+    }
+    
+	//--------------------
+    // 簡易 bot チェック
+	//--------------------
+	$bot_message = m_info('bot.message');
+    $bot_param   = m_param('bot');
+    if ($bot_param != $bot_message) {
+        m_show_error("フォームから書き込んでください。");
+    }
+    // 日本語 bot チェック
+    if (m_info('bot.enabled')) {
+        if (m_param("manatubbs_checkbot") != m_info("bot.a")) {
+            m_show_error_with_form("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
+        }
+    }
+	//--------------------
+    // フィールドチェック
+	//--------------------
+    if (m_param('mbbs_user_name','') == "") {
+        m_show_error_with_form("名前が未入力です。");
+    }
+    if (m_param('mbbs_user_title','') == "") {
+        m_show_error_with_form("タイトルが未入力です。");
+    }
+    
+    //--------------------
+    // NGワードチェック
+    //--------------------
+    $ng_words = m_info('ng_words', []);
+    if (!empty($ng_words)) {
+        $title = m_param('mbbs_user_title', '');
+        $body = m_param('mbbs_user_body', '');
+        $name = m_param('mbbs_user_name', '');
+        
+        // タイトル、本文、名前をチェック対象とする
+        $check_text = $title . ' ' . $body . ' ' . $name;
+        
+        foreach ($ng_words as $ng_word) {
+            if (!empty($ng_word) && mb_strpos($check_text, $ng_word) !== false) {
+                m_show_error_with_form("投稿内容に禁止されている単語が含まれています。内容を確認の上、再度投稿してください。");
+            }
+        }
+    }
+    
+    //--------------------
+    // threads & logs
+    //--------------------
+    $thread_keys    = array('mode','status');
+    $log_keys       = array('threadid','parentid','title','body','name','ip','editkey','mode','status');
     $thread_v = array();
     $log_v    = array();
-    m_mode__write_checkParam($thread_v, $log_v);
+    foreach ($thread_keys as $key) {
+        $v = m_param($key, null);
+        if ($v == null ) {
+        	$v = m_param("mbbs_user_{$key}", "");
+        }
+        $thread_v[$key] = $v;
+    }
+    foreach ($log_keys as $key) {
+        $v = m_param($key, null);
+        if ($v == null ) {
+        	$v = m_param("mbbs_user_{$key}", "");
+        }
+        $log_v[$key] = $v;
+    }
+    $log_v['threadid']  = intval($log_v['threadid']);
+    $log_v['parentid']  = intval($log_v['parentid']);
+    $log_v['ip'] = empty($_SERVER['REMOTE_ADDR']) ? "" : $_SERVER['REMOTE_ADDR'];
     // ログの読み出し
     $logid = intval(m_param("logid", 0));
     $r = m_db_query("SELECT * FROM logs WHERE logid=?", [$logid]);
@@ -616,7 +692,7 @@ function m_mode__editlog()
     }
     m_db_exec("commit", []);
     
-    // CSRF トークンをクリア（ワンタイム使用のため）
+    // CSRF トークンをクリア（新しいトークンを生成するため）
     m_csrf_clear_token();
     
     //
