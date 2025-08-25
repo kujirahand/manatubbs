@@ -269,6 +269,14 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
         m_show_error("メンテナンス中のため、現在書き込みはできません。");
     }
     
+    //--------------------
+    // CSRF対策
+    //--------------------
+    $csrf_token = m_param('csrf_token', '');
+    if (!m_csrf_verify_token($csrf_token)) {
+        m_show_error("セキュリティトークンが無効です。ページを再読み込みしてから再度お試しください。");
+    }
+    
 	//--------------------
     // 簡易 bot チェック
 	//--------------------
@@ -498,6 +506,10 @@ function m_mode__write()
         }
     }
     m_db_exec("commit", []);
+    
+    // CSRF トークンをクリア（ワンタイム使用のため）
+    m_csrf_clear_token();
+    
     mbbs_setcookie($log_v);
 
     $script = m_info("script_name");
@@ -542,6 +554,14 @@ function mbbs_setcookie($log_v)
 
 function m_mode__editlog()
 {
+    //--------------------
+    // CSRF対策
+    //--------------------
+    $csrf_token = m_param('csrf_token', '');
+    if (!m_csrf_verify_token($csrf_token)) {
+        m_show_error("セキュリティトークンが無効です。ページを再読み込みしてから再度お試しください。");
+    }
+    
     // 編集
     $thread_v = array();
     $log_v    = array();
@@ -595,6 +615,10 @@ function m_mode__editlog()
         m_show_error("DBへの書き込みに失敗。");
     }
     m_db_exec("commit", []);
+    
+    // CSRF トークンをクリア（ワンタイム使用のため）
+    m_csrf_clear_token();
+    
     //
     mbbs_setcookie($log_v);
     $script = m_info("script_name");
@@ -624,6 +648,7 @@ function m_mode__search()
         m_build_form(array(
           m_form_parts("検索語句","key","text",array("size"=>30), ""),
           m_form_parts("","m","hidden",array(), "search2"),
+          m_form_parts("","csrf_token","hidden",array(), m_csrf_generate_token()),
         ),"get","検索");
     // ヘッダを表示
     include "tpl/header.tpl.php";
@@ -636,6 +661,12 @@ function m_mode__search()
 
 function m_mode__search2()
 {
+    // CSRF対策（検索もGETだが念のためチェック）
+    $csrf_token = m_param('csrf_token', '');
+    if ($csrf_token !== '' && !m_csrf_verify_token($csrf_token)) {
+        m_show_error("セキュリティトークンが無効です。検索ページから再度実行してください。");
+    }
+    
     $script = m_info("script_name");
     $key = m_param("key","");
     if ($key == "") {

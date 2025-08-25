@@ -40,29 +40,42 @@ function m_check_login() {
   global $mbbs;
   $msg = "ログインしていません。";
   if (isset($_POST['user']) && isset($_POST['pass'])) {
-    $user = trim($_POST['user']);
-    $pass = trim($_POST['pass']);
-    // check conf
-    $a = array();
-    $users_s = $mbbs['users'];
-    $users_a = explode(",", $users_s);
-    foreach ($users_a as $line) {
-      $cs = explode(":", $line);
-      $a[trim($cs[0])] = trim($cs[1]);
-    }
-    if (isset($a[$user]) && $a[$user] === $pass) {
-      m_set_login(TRUE);
-      return;
+    // CSRF対策
+    $csrf_token = isset($_POST['csrf_token']) ? $_POST['csrf_token'] : '';
+    if (!m_csrf_verify_token($csrf_token)) {
+      $msg = "セキュリティトークンが無効です。ページを再読み込みしてから再度お試しください。";
     } else {
-      $msg = "パスワードが違います。";
+      $user = trim($_POST['user']);
+      $pass = trim($_POST['pass']);
+      // check conf
+      $a = array();
+      $users_s = $mbbs['users'];
+      $users_a = explode(",", $users_s);
+      foreach ($users_a as $line) {
+        $cs = explode(":", $line);
+        $a[trim($cs[0])] = trim($cs[1]);
+      }
+      if (isset($a[$user]) && $a[$user] === $pass) {
+        m_set_login(TRUE);
+        // CSRFトークンをクリア
+        m_csrf_clear_token();
+        return;
+      } else {
+        $msg = "パスワードが違います。";
+      }
     }
   }
+  
+  // CSRFトークンを生成
+  $csrf_token = m_csrf_generate_token();
+  
   // form
   m_show_error(
     "<p>$msg</p>".
     "<div class='form card' style='width:20em;padding:1em;'><form method='POST'>".
     "<p><label>ユーザー名:<br><input class='input' name='user' size='12'></label></p>".
     "<p><label>パスワード:<br><input class='input' name='pass' size='12' type='password'></label></p>".
+    "<input type='hidden' name='csrf_token' value='".htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8')."'>".
     "<p><input class='button is-primary' type='submit' value='ログイン'></p>".
     "</div>"
   );
@@ -223,6 +236,36 @@ function m_password_to_sha($pass)
 		return $pass;
 	}
 	return '[sha]'.sha1($pass);
+}
+
+/**
+ * CSRF対策: トークンを生成する
+ */
+function m_csrf_generate_token()
+{
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * CSRF対策: トークンを検証する
+ */
+function m_csrf_verify_token($token)
+{
+    if (!isset($_SESSION['csrf_token'])) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
+}
+
+/**
+ * CSRF対策: トークンをクリアする
+ */
+function m_csrf_clear_token()
+{
+    unset($_SESSION['csrf_token']);
 }
 
 function m_logid_embedLink($m)

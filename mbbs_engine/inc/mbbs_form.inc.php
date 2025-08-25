@@ -95,6 +95,7 @@ function m_show_form($caption = "", $formmode = "write")
     $items[] = m_form_parts("", "parentid", "hidden", array(), m_param("parentid",0));
     $items[] = m_form_parts("", "logid", "hidden", array(), m_param("logid",0));
     $items[] = m_form_parts("", "bot",  "hidden", array(), $mbbs["bot.message"]);
+    $items[] = m_form_parts("", "csrf_token", "hidden", array(), m_csrf_generate_token());
     
     return
     "<div class='inputform'>\n".
