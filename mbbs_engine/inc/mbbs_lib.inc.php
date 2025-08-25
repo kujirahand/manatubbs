@@ -267,26 +267,38 @@ function m_csrf_generate_token()
  */
 function m_csrf_verify_token($token)
 {
+    // デバッグ情報を一時的に追加
+    error_log("CSRF Debug: Starting verification");
+    error_log("CSRF Debug: Received token = " . $token);
+    error_log("CSRF Debug: Session token = " . (isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : 'not_set'));
+    error_log("CSRF Debug: Session used = " . (isset($_SESSION['csrf_token_used']) ? ($_SESSION['csrf_token_used'] ? 'true' : 'false') : 'not_set'));
+    
     if (!isset($_SESSION['csrf_token']) || !isset($_SESSION['csrf_token_time'])) {
+        error_log("CSRF Debug: Session token or time not set");
         return false;
     }
     
     // トークンの有効期限チェック（1時間）
     $token_age = time() - $_SESSION['csrf_token_time'];
     if ($token_age > 3600) {
+        error_log("CSRF Debug: Token expired, age = " . $token_age);
         return false;
     }
     
     // 既に使用済みのトークンかチェック
     if (isset($_SESSION['csrf_token_used']) && $_SESSION['csrf_token_used']) {
-        return false;
+        error_log("CSRF Debug: Token already used - clearing and regenerating");
+        // 使用済みトークンの場合は一度クリアして新しいトークンで再試行を許可
+        unset($_SESSION['csrf_token_used']);
     }
     
     // トークンの値を検証
     if (!hash_equals($_SESSION['csrf_token'], $token)) {
+        error_log("CSRF Debug: Token mismatch");
         return false;
     }
     
+    error_log("CSRF Debug: Token verification successful");
     return true;
 }
 

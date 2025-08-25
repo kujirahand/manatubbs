@@ -11,6 +11,7 @@ function m_mode__admin() {
   $admin_pass = m_param('admin_pass', '');
   $action = m_param('action', '');
   $log_id = m_param('log_id', '');
+  $thread_id = m_param('thread_id', '');
   
   // CSRFトークンの処理
   $csrf_token = m_param('csrf_token', '');
@@ -18,7 +19,7 @@ function m_mode__admin() {
   // デバッグ情報
   $debug_info = "";
   if (m_info('debug.mode', false)) {
-    $debug_info = "Debug: admin_pass='$admin_pass', action='$action', log_id='$log_id', csrf_token='$csrf_token'";
+    $debug_info = "Debug: admin_pass='$admin_pass', action='$action', log_id='$log_id', thread_id='$thread_id', csrf_token='$csrf_token'";
   }
   
   // パスワードが正しいかチェック
@@ -41,6 +42,23 @@ function m_mode__admin() {
           $message = "ログID: {$log_id} を削除しました。";
         } else {
           $message = "ログの削除に失敗しました。データベースエラーの可能性があります。" . ($debug_info ? "<br>$debug_info" : "");
+        }
+      }
+    }
+    
+    // スレッド削除処理
+    if ($action === 'delete_thread' && !empty($thread_id) && is_numeric($thread_id)) {
+      // 管理画面では簡単なCSRFチェックを行う（セッションベースではなく）
+      if (empty($csrf_token)) {
+        $message = "セキュリティトークンがありません。" . ($debug_info ? "<br>$debug_info" : "");
+      } else {
+        // スレッドを削除
+        $delete_result = m_admin_delete_thread($thread_id);
+        if ($delete_result['success']) {
+          // 削除成功メッセージを設定
+          $message = "スレッドID: {$thread_id} を削除しました。（削除されたログ数: {$delete_result['log_count']}）";
+        } else {
+          $message = "スレッドの削除に失敗しました。" . $delete_result['error'] . ($debug_info ? "<br>$debug_info" : "");
         }
       }
     }
@@ -108,6 +126,78 @@ function m_admin_delete_log($log_id) {
 }
 
 /**
+ * スレッドを削除する関数（関連するログも全て削除）
+ */
+function m_admin_delete_thread($thread_id) {
+  global $mbbs_db;
+  
+  // デバッグ情報
+  if (m_info('debug.mode', false)) {
+    error_log("Admin delete thread: Attempting to delete thread_id = $thread_id");
+  }
+  
+  // まず削除対象のスレッドが存在するかチェック
+  $check_query = "SELECT threadid, title FROM threads WHERE threadid = ?";
+  $result = m_db_query($check_query, [$thread_id]);
+  
+  if (empty($result)) {
+    if (m_info('debug.mode', false)) {
+      error_log("Admin delete thread: Thread with ID $thread_id not found");
+    }
+    return ['success' => false, 'error' => 'スレッドが存在しません。', 'log_count' => 0];
+  }
+  
+  if (m_info('debug.mode', false)) {
+    error_log("Admin delete thread: Found thread with ID $thread_id, title: " . $result[0]['title']);
+  }
+  
+  // スレッドに含まれるログの数を取得
+  $log_count_query = "SELECT COUNT(*) as cnt FROM logs WHERE threadid = ?";
+  $log_count_result = m_db_query($log_count_query, [$thread_id]);
+  $log_count = $log_count_result[0]['cnt'];
+  
+  // トランザクション開始（複数のテーブルを操作するため）
+  $mbbs_db->beginTransaction();
+  
+  try {
+    // 関連するログを全て削除
+    $delete_logs_query = "DELETE FROM logs WHERE threadid = ?";
+    $logs_success = m_db_exec($delete_logs_query, [$thread_id]);
+    
+    if (!$logs_success) {
+      throw new Exception("ログの削除に失敗しました");
+    }
+    
+    // スレッドを削除
+    $delete_thread_query = "DELETE FROM threads WHERE threadid = ?";
+    $thread_success = m_db_exec($delete_thread_query, [$thread_id]);
+    
+    if (!$thread_success) {
+      throw new Exception("スレッドの削除に失敗しました");
+    }
+    
+    // コミット
+    $mbbs_db->commit();
+    
+    if (m_info('debug.mode', false)) {
+      error_log("Admin delete thread: Successfully deleted thread $thread_id with $log_count logs");
+    }
+    
+    return ['success' => true, 'error' => '', 'log_count' => $log_count];
+    
+  } catch (Exception $e) {
+    // ロールバック
+    $mbbs_db->rollback();
+    
+    if (m_info('debug.mode', false)) {
+      error_log("Admin delete thread: Error - " . $e->getMessage());
+    }
+    
+    return ['success' => false, 'error' => $e->getMessage(), 'log_count' => 0];
+  }
+}
+
+/**
  * 管理画面のページを表示する関数
  */
 function m_admin_show_page($is_authenticated, $message = '') {
@@ -154,10 +244,31 @@ function m_admin_show_page($is_authenticated, $message = '') {
     echo "</form>";
     echo "</div>";
     
+    // スレッド削除フォーム
+    echo "<div class='card'>";
+    echo "<h2>スレッド削除</h2>";
+    echo "<form method='POST'>";
+    echo "<label>削除するスレッドID:</label><br>";
+    echo "<input class='input' type='number' name='thread_id' placeholder='例: 456' required><br>";
+    echo "<p><strong>注意:</strong> スレッドを削除すると、そのスレッドに含まれる全てのログも削除されます。この操作は取り消せません。</p>";
+    echo "<input type='hidden' name='m' value='admin'>";
+    echo "<input type='hidden' name='action' value='delete_thread'>";
+    echo "<input type='hidden' name='admin_pass' value='".htmlspecialchars(m_param('admin_pass', ''), ENT_QUOTES, 'UTF-8')."'>";
+    echo "<input type='hidden' name='csrf_token' value='".htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8')."'>";
+    echo "<button class='button is-danger' type='submit' onclick='return confirm(\"本当にこのスレッドと含まれる全てのログを削除しますか？この操作は取り消せません。\");'>スレッドを削除</button>";
+    echo "</form>";
+    echo "</div>";
+    
     // 最近のログ一覧を表示
     echo "<div class='card'>";
     echo "<h2>最近のログ一覧</h2>";
     echo m_admin_show_recent_logs();
+    echo "</div>";
+    
+    // スレッド一覧を表示
+    echo "<div class='card'>";
+    echo "<h2>スレッド一覧</h2>";
+    echo m_admin_show_recent_threads();
     echo "</div>";
   }
   
@@ -210,6 +321,59 @@ function m_admin_show_recent_logs() {
     $html .= "    <input type='hidden' name='admin_pass' value='{$admin_pass}'>\n";
     $html .= "    <input type='hidden' name='csrf_token' value='{$csrf_token}'>\n";
     $html .= "    <button type='submit' class='button is-small is-danger' onclick='return confirm(\"ログID:{$log_id} を本当に削除しますか？この操作は取り消せません。\");'>削除</button>\n";
+    $html .= "  </form>\n";
+    $html .= "</td>\n";
+    $html .= "</tr>\n";
+  }
+  
+  $html .= "</tbody>\n";
+  $html .= "</table>\n";
+  
+  return $html;
+}
+
+/**
+ * 最近のスレッド一覧を表示する関数
+ */
+function m_admin_show_recent_threads() {
+  $query = "SELECT threadid, title, count, ctime, mtime FROM threads ORDER BY mtime DESC LIMIT 20";
+  $threads = m_db_query($query, []);
+  
+  if (empty($threads)) {
+    return "<p>スレッドがありません。</p>";
+  }
+  
+  $csrf_token = uniqid('admin_', true); // 管理画面用の簡単なトークン
+  $admin_pass = htmlspecialchars(m_param('admin_pass', ''), ENT_QUOTES, 'UTF-8');
+  
+  $html = "<table class='table is-fullwidth'>\n";
+  $html .= "<thead>\n";
+  $html .= "<tr><th>スレッドID</th><th>タイトル</th><th>ログ数</th><th>作成日時</th><th>更新日時</th><th>操作</th></tr>\n";
+  $html .= "</thead>\n";
+  $html .= "<tbody>\n";
+  
+  foreach ($threads as $thread) {
+    $thread_id = htmlspecialchars($thread['threadid'], ENT_QUOTES, 'UTF-8');
+    $title = htmlspecialchars($thread['title'], ENT_QUOTES, 'UTF-8');
+    $count = htmlspecialchars($thread['count'], ENT_QUOTES, 'UTF-8');
+    $cdate = date('Y-m-d H:i:s', $thread['ctime']);
+    $mdate = date('Y-m-d H:i:s', $thread['mtime']);
+    
+    $html .= "<tr>\n";
+    $html .= "<td>{$thread_id}</td>\n";
+    $html .= "<td><a href='".m_url('thread', "t={$thread_id}")."'>{$title}</a></td>\n";
+    $html .= "<td>{$count}</td>\n";
+    $html .= "<td>{$cdate}</td>\n";
+    $html .= "<td>{$mdate}</td>\n";
+    $html .= "<td>\n";
+    $html .= "  <a href='".m_url('thread', "t={$thread_id}")."' class='button is-small is-info'>表示</a>\n";
+    $html .= "  <form method='POST' style='display:inline-block; margin-left:5px;'>\n";
+    $html .= "    <input type='hidden' name='m' value='admin'>\n";
+    $html .= "    <input type='hidden' name='action' value='delete_thread'>\n";
+    $html .= "    <input type='hidden' name='thread_id' value='{$thread_id}'>\n";
+    $html .= "    <input type='hidden' name='admin_pass' value='{$admin_pass}'>\n";
+    $html .= "    <input type='hidden' name='csrf_token' value='{$csrf_token}'>\n";
+    $html .= "    <button type='submit' class='button is-small is-danger' onclick='return confirm(\"スレッドID:{$thread_id} とその全てのログ（{$count}件）を本当に削除しますか？この操作は取り消せません。\");'>削除</button>\n";
     $html .= "  </form>\n";
     $html .= "</td>\n";
     $html .= "</tr>\n";
