@@ -37,12 +37,16 @@ function m_show_form($caption = "", $formmode = "write")
         $ff_status  = htmlspecialchars($log["status"],ENT_QUOTES);
     } else {
         $ff_title   = htmlspecialchars(m_param('mbbs_user_title',''), ENT_QUOTES);
-        $ff_body    = "";
+        $ff_body    = htmlspecialchars(m_param('mbbs_user_body',''), ENT_QUOTES);
         $ff_mode    = htmlspecialchars(m_param('mode',''), ENT_QUOTES);
         $ff_status  = htmlspecialchars(m_param('status',''),ENT_QUOTES);
         // new
         if ($caption == "新規で書き込む") {
             $ff_body = htmlspecialchars(m_info("body.template"),ENT_QUOTES);
+        }
+        // エラー時に入力済みの名前も保持
+        if (m_param('mbbs_user_name','') != '') {
+            $ff_name = htmlspecialchars(m_param('mbbs_user_name',''), ENT_QUOTES);
         }
     }
     
@@ -66,19 +70,21 @@ function m_show_form($caption = "", $formmode = "write")
                     'style'=>'width:200px',
                 ), $ff_status);
     if (m_info('bot.enabled')) {
+        $bot_key_value = m_param("manatubbs_checkbot", m_cookie("mbbs_botkey",""));
         $items[] = m_form_parts("確認キー","manatubbs_checkbot", "text",
                 array(
                     'hint'=>"👆お手数ですが、いたずら防止のために、".m_info('bot.q'),
                     'style'=>'width:200px',
-                ), m_cookie("mbbs_botkey",""));
+                ), $bot_key_value);
     }
+    $editkey_value = m_param("mbbs_user_editkey", m_cookie("mbbs_editkey", ""));
     $items[] = m_form_parts(
     	"編集キー","mbbs_user_editkey",  "password",
                 array(
                     'size'=>20,
                     'hint'=>'編集時に使うキーを入力(省略可能)',
                     'style'=>'width:200px',
-                ), m_cookie("mbbs_editkey", "")); // この編集キーは大して重要ではないと思うが sha1 で暗号化したもの。
+                ), $editkey_value); // この編集キーは大して重要ではないと思うが sha1 で暗号化したもの。
     $items[] = m_form_parts("添付ファイル", "attach",   "file", 
                 array(
                     "hint"=>m_info('upload.format.hint'),

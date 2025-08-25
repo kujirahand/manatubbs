@@ -243,17 +243,17 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
     // 日本語 bot チェック
     if (m_info('bot.enabled')) {
         if (m_param("manatubbs_checkbot") != m_info("bot.a")) {
-            m_show_error("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
+            m_show_error_with_form("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
         }
     }
 	//--------------------
     // フィールドチェック
 	//--------------------
     if (m_param('mbbs_user_name','') == "") {
-        m_show_error("名前が未入力です。[戻る]キーで再入力ください。");
+        m_show_error_with_form("名前が未入力です。");
     }
     if (m_param('mbbs_user_title','') == "") {
-        m_show_error("タイトルが未入力です。[戻る]キーで再入力ください。");
+        m_show_error_with_form("タイトルが未入力です。");
     }
     
     //--------------------
@@ -270,7 +270,7 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
         
         foreach ($ng_words as $ng_word) {
             if (!empty($ng_word) && mb_strpos($check_text, $ng_word) !== false) {
-                m_show_error("投稿内容に禁止されている単語が含まれています。内容を確認の上、再度投稿してください。");
+                m_show_error_with_form("投稿内容に禁止されている単語が含まれています。内容を確認の上、再度投稿してください。");
             }
         }
     }

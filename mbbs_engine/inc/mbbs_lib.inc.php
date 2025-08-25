@@ -265,6 +265,29 @@ function m_show_error($msg)
   exit;
 }
 
+/**
+ * エラーメッセージとフォームを同時に表示
+ * ユーザーが入力した内容を維持して再表示
+ */
+function m_show_error_with_form($msg)
+{
+    // POSTされたパラメータを保持
+    $form_caption = "エラー：再入力してください";
+    
+    // ヘッダを表示
+    $dir = dirname(__DIR__);
+    include "$dir/tpl/header.tpl.php";
+    
+    // エラーメッセージ + フォーム
+    $body = "<div class='notification is-warning'><strong>エラー:</strong> $msg</div>\n";
+    $body .= m_show_form($form_caption);
+    
+    include "$dir/tpl/body.tpl.php";
+    // フッターを表示
+    include "$dir/tpl/footer.tpl.php";
+    exit;
+}
+
 function m_discord_webhook($title, $body, $username, $url)
 {
     // check webhook url
