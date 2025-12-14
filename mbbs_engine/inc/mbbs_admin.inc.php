@@ -207,7 +207,7 @@ function m_admin_show_page($is_authenticated, $message = '') {
   echo "<!DOCTYPE html><html><head>";
   echo "<meta charset='UTF-8'>";
   echo "<title>管理画面</title>";
-  echo "<style>body{font-family:Arial,sans-serif;margin:40px;} .container{max-width:800px;} .card{border:1px solid #ddd;padding:20px;margin:20px 0;} .button{padding:8px 16px;margin:4px;cursor:pointer;border-radius:4px;font-size:14px;} .button.is-small{padding:6px 12px;font-size:13px;} .is-primary{background:#3273dc;color:white;border:none;} .is-danger{background:#f14668;color:white;border:none;} .is-info{background:#3298dc;color:white;border:none;} .input{padding:8px;border:1px solid #ddd;width:200px;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background:#f5f5f5;}</style>";
+  echo "<style>body{font-family:Arial,sans-serif;margin:0;padding:40px;background:#f5f5f5;} .container{max-width:1000px;margin:0 auto;background:white;padding:30px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);} .card{border:1px solid #ddd;padding:20px;margin:20px 0;border-radius:6px;background:#fafafa;} .button{padding:8px 16px;margin:4px;cursor:pointer;border-radius:4px;font-size:14px;} .button.is-small{padding:6px 12px;font-size:13px;} .is-primary{background:#3273dc;color:white;border:none;} .is-danger{background:#f14668;color:white;border:none;} .is-info{background:#3298dc;color:white;border:none;} .input{padding:8px;border:1px solid #ddd;width:200px;border-radius:4px;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background:#f5f5f5;}</style>";
   echo "</head><body>";
   echo "<div class='container'>";
   echo "<h1>管理画面</h1>";
