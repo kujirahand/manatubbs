@@ -207,7 +207,7 @@ function m_admin_show_page($is_authenticated, $message = '') {
   echo "<!DOCTYPE html><html><head>";
   echo "<meta charset='UTF-8'>";
   echo "<title>管理画面</title>";
-  echo "<style>body{font-family:Arial,sans-serif;margin:40px;} .container{max-width:800px;} .card{border:1px solid #ddd;padding:20px;margin:20px 0;} .button{padding:8px 16px;margin:4px;cursor:pointer;} .is-primary{background:#3273dc;color:white;border:none;} .is-danger{background:#f14668;color:white;border:none;} .is-info{background:#3298dc;color:white;border:none;} .input{padding:8px;border:1px solid #ddd;width:200px;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background:#f5f5f5;}</style>";
+  echo "<style>body{font-family:Arial,sans-serif;margin:40px;} .container{max-width:800px;} .card{border:1px solid #ddd;padding:20px;margin:20px 0;} .button{padding:8px 16px;margin:4px;cursor:pointer;border-radius:4px;font-size:14px;} .button.is-small{padding:6px 12px;font-size:13px;} .is-primary{background:#3273dc;color:white;border:none;} .is-danger{background:#f14668;color:white;border:none;} .is-info{background:#3298dc;color:white;border:none;} .input{padding:8px;border:1px solid #ddd;width:200px;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background:#f5f5f5;}</style>";
   echo "</head><body>";
   echo "<div class='container'>";
   echo "<h1>管理画面</h1>";
@@ -295,7 +295,7 @@ function m_admin_show_recent_logs() {
   
   $html = "<table class='table is-fullwidth'>\n";
   $html .= "<thead>\n";
-  $html .= "<tr><th>ログID</th><th>スレッドID</th><th>タイトル</th><th>投稿者</th><th>投稿日時</th><th>操作</th></tr>\n";
+  $html .= "<tr><th>ログID</th><th>スレッドID</th><th>タイトル / 投稿者</th><th>投稿日時</th><th>操作</th></tr>\n";
   $html .= "</thead>\n";
   $html .= "<tbody>\n";
   
@@ -309,12 +309,11 @@ function m_admin_show_recent_logs() {
     $html .= "<tr>\n";
     $html .= "<td>{$log_id}</td>\n";
     $html .= "<td><a href='".m_url('thread', "t={$thread_id}")."'>{$thread_id}</a></td>\n";
-    $html .= "<td>{$title}</td>\n";
-    $html .= "<td>{$name}</td>\n";
+    $html .= "<td>{$title}<br><small style='color:#666;'>投稿者: {$name}</small></td>\n";
     $html .= "<td>{$date}</td>\n";
-    $html .= "<td>\n";
-    $html .= "  <a href='".m_url('log', "l={$log_id}")."' class='button is-small is-info'>表示</a>\n";
-    $html .= "  <form method='POST' style='display:inline-block; margin-left:5px;'>\n";
+    $html .= "<td style='white-space:nowrap;'>\n";
+    $html .= "  <a href='".m_url('log', "l={$log_id}")."' class='button is-small is-info' style='margin-right:5px;'>表示</a>\n";
+    $html .= "  <form method='POST' style='display:inline-block;'>\n";
     $html .= "    <input type='hidden' name='m' value='admin'>\n";
     $html .= "    <input type='hidden' name='action' value='delete'>\n";
     $html .= "    <input type='hidden' name='log_id' value='{$log_id}'>\n";
