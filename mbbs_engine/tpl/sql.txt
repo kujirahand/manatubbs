@@ -26,6 +26,7 @@ CREATE TABLE logs (
     mode        TEXT,
     status      TEXT,
     attachid    INTEGER,
+    likes       INTEGER NOT NULL DEFAULT 0, /* いいね数 */
     visible     INTEGER,
     ctime       INTEGER,
     mtime       INTEGER

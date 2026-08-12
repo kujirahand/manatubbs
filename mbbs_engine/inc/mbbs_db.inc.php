@@ -52,6 +52,25 @@ function m_initDB()
     $h = m_sqlite_open($dbfile, 0604);
     if (!$h) { m_error_dbopen(); }
     $mbbs_db = $h;
+    m_db_ensure_logs_likes_column($h);
+}
+
+/**
+ * 既存のデータベースに、いいね数を保持する列を追加する。
+ */
+function m_db_ensure_logs_likes_column($h)
+{
+    $columns = m_sqlite_array_query($h, "PRAGMA table_info(logs)", []);
+    foreach ($columns as $column) {
+        if (isset($column['name']) && $column['name'] === 'likes') {
+            return true;
+        }
+    }
+    return m_sqlite_exec(
+        $h,
+        "ALTER TABLE logs ADD COLUMN likes INTEGER NOT NULL DEFAULT 0",
+        []
+    );
 }
 
 function m_db_createTable($dbfile)
@@ -153,6 +172,14 @@ function m_db_has_duplicate_body_since($body, $since)
         [$body, $since]
     );
     return !empty($r);
+}
+
+function m_db_increment_log_likes($logid)
+{
+    return m_db_exec(
+        "UPDATE logs SET likes=COALESCE(likes, 0)+1 WHERE logid=?",
+        [intval($logid)]
+    );
 }
 
 //----------------------------------------------------------------------
@@ -457,16 +484,27 @@ function m_get_log_item($log)
     $mode   = htmlspecialchars($mode);
     $status = htmlspecialchars($status);
     $editlink = m_link(array("m=edit","logid={$logid}"));
+    $likes = isset($log['likes']) ? intval($log['likes']) : 0;
+    $csrf_token = htmlspecialchars(m_csrf_generate_token(), ENT_QUOTES, 'UTF-8');
+    $like_action = htmlspecialchars($script, ENT_QUOTES, 'UTF-8');
     $res .= <<<EOS__
 <br/>
-<div class="item">
+<div class="item" id="log-{$logid}">
     <div class="$class">
          $parentlink $logidlink <b>$title</b> - $name $mtime_s
         <span class="hint">/$mode $status</span>
     </div>
     <div class="body">
         $body
-        <div class="editlink"><a href="{$editlink}">編集</a></div>
+        <div class="log-actions">
+            <form class="like-form" action="{$like_action}" method="post">
+                <input type="hidden" name="m" value="like">
+                <input type="hidden" name="logid" value="{$logid}">
+                <input type="hidden" name="csrf_token" value="{$csrf_token}">
+                <button class="button is-small is-light" type="submit">👍 いいね <span class="like-count">{$likes}</span></button>
+            </form>
+            <a class="editlink" href="{$editlink}">編集</a>
+        </div>
     </div>
 </div>
 EOS__;

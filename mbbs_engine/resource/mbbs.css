@@ -225,6 +225,23 @@ itemnode {
   background-color: transparent;
 }
 
+.log-actions {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 0.75rem;
+}
+
+.like-form {
+    margin: 0;
+}
+
+.like-count {
+    font-variant-numeric: tabular-nums;
+    margin-left: 0.25rem;
+}
+
 /* ReadOnly Mode */
 .readonly-notice {
     background-color: #fff3cd;

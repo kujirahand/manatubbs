@@ -218,6 +218,37 @@ function m_mode__thread()
     exit;
 }
 
+function m_mode__like()
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        m_show_error("いいねは投稿のボタンから行ってください。");
+    }
+    if (m_info("readonly", FALSE)) {
+        m_show_error("メンテナンス中のため、現在いいねはできません。");
+    }
+
+    $csrf_token = m_param('csrf_token', '');
+    if (!m_csrf_verify_token($csrf_token)) {
+        m_show_error("セキュリティトークンが無効です。ページを再読み込みしてから再度お試しください。");
+    }
+
+    $logid = intval(m_param('logid', 0));
+    $logs = m_db_query("SELECT threadid FROM logs WHERE logid=? LIMIT 1", [$logid]);
+    if ($logid <= 0 || !$logs) {
+        m_show_error("指定された投稿は存在しません。");
+    }
+
+    if (!m_db_increment_log_likes($logid)) {
+        m_show_error("いいねの保存に失敗しました。");
+    }
+    m_csrf_mark_token_used();
+
+    $threadid = intval($logs[0]['threadid']);
+    $script = m_info("script_name", "index.php");
+    header("Location: {$script}?m=thread&threadid={$threadid}#log-{$logid}");
+    exit;
+}
+
 function m_mode__log()
 {
     $script = m_info("script_name");
