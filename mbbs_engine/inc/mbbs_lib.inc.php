@@ -576,3 +576,33 @@ if (!function_exists('m_info')) {
         return empty($mbbs[$param]) ? $default : $mbbs[$param];
     }
 }
+
+if (!function_exists('m_get_msg_html')) {
+    /**
+     * セッションまたはGETパラメータからメッセージを取得し、可愛いデザインのHTMLで返す
+     *
+     * @return string
+     */
+    function m_get_msg_html()
+    {
+        $msg = m_param("msg", "");
+        if (!empty($_SESSION['mbbs.message'])) {
+            $msg = $_SESSION['mbbs.message'];
+            unset($_SESSION['mbbs.message']);
+        }
+        if ($msg === "") {
+            return "";
+        }
+
+        $icon = "✨";
+        if (mb_strpos($msg, "失敗") !== false || mb_strpos($msg, "エラー") !== false) {
+            $icon = "⚠️";
+        } elseif (mb_strpos($msg, "完了") !== false || mb_strpos($msg, "成功") !== false) {
+            $icon = "🎉";
+        }
+
+        $safe_msg = htmlspecialchars($msg, ENT_QUOTES, 'UTF-8');
+        return "<div class='msg'><span class='msg-icon'>{$icon}</span><span class='msg-text'>{$safe_msg}</span></div>\n";
+    }
+}
+

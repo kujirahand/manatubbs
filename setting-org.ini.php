@@ -105,7 +105,7 @@ $mbbs["status.color"] = array(
   '解決' => array(
     'bgcolor' => '#f0f0ff',
     'color' => '#a0a0a0',
-    'style' => 'text-decoration:normal;'
+    'style' => 'text-decoration:line-through;'
   ),
 );
 
@@ -139,3 +139,7 @@ $mbbs["menubar"][] = array("label"=>"管理",     "link"=>m_url("admin"));
 $mbbs["menubar"][] = array("type"=>"-");
 $mbbs["menubar"][] = array("type"=>"html",      "link"=>m_info("HOME"));
 
+/**
+ * スパム対策の設定
+ */
+$mbbs["antispam.min_wait_ms"] = 1000 * 5; // 投稿までの最低待機時間（ミリ秒）

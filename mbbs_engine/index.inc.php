@@ -151,8 +151,7 @@ function m_mode__kinkyu()
 
 function m_mode__yusen()
 {
-    $msg  = htmlspecialchars(m_param("msg", ""));
-    if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
+    $msg  = m_get_msg_html();
     $body = $msg.
             m_show_all("緊急のもの","status!='解決' AND mode='緊急'","yusen")."<br/>".
             m_show_all("高のもの","status!='解決' AND mode='高'","yusen")."<br/>".
@@ -169,8 +168,7 @@ function m_mode__yusen()
 
 function __m_mode__show_threads($title, $where_str, $m_mode = "all")
 {
-    $msg  = htmlspecialchars(m_param("msg", ""));
-    if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
+    $msg  = m_get_msg_html();
     $body = $msg.
             m_show_all($title,$where_str,$m_mode)."<br/>".
             m_show_form("新規で書き込む");
@@ -186,8 +184,7 @@ function __m_mode__show_threads($title, $where_str, $m_mode = "all")
 
 function m_mode__tree()
 {
-    $msg  = htmlspecialchars(m_param("msg", ""));
-    if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
+    $msg  = m_get_msg_html();
     $body = $msg.
             m_show_tree()."<br/>".
             m_show_form("新規で書き込む");
@@ -203,8 +200,7 @@ function m_mode__tree()
 function m_mode__thread()
 {
     $script = m_info("script_name");
-    $msg  = htmlspecialchars(m_param("msg", ""));
-    if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
+    $msg  = m_get_msg_html();
     $body  = $msg;
     $body .= m_show_thread();
     $logid = m_param("parentid", 0);
@@ -252,12 +248,7 @@ function m_mode__like()
 function m_mode__log()
 {
     $script = m_info("script_name");
-    $msg  = htmlspecialchars(m_param("msg", ""));
-    if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
-    if (!empty($_SESSION['mbbs.message'])) {
-        $msg = "<div class='msg'>".$_SESSION['mbbs.message']."</div>\n";
-        unset($_SESSION['mbbs.message']);
-    }
+    $msg  = m_get_msg_html();
     $body  = $msg;
     $body .= m_show_log();
     $body .= "<br/>";
@@ -278,9 +269,8 @@ function m_mode__edit()
     if ($logid <= 0) {
         m_show_error("logid が指定されていません。");
     }
-    $msg  = htmlspecialchars( m_param("msg", "") );
+    $msg  = m_get_msg_html();
     $script = m_info("script", "");
-    if ($msg != "") { $msg = "<div class='msg'>$msg</div>\n"; }
     $body = $msg.
             m_show_form("書き込み(#{$logid})を編集する","editlog");
     // ヘッダを表示
