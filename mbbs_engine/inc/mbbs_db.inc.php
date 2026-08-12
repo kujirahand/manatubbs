@@ -473,6 +473,11 @@ function m_get_log_item($log)
     $body = trim($body)."\n";
     // body replyto
     $body = preg_replace("#\n(\&gt\;[^\n]+)#","\n<span class='reply'>$1</span>",$body);
+    // github issue link (bare #123 ... except the "(#123)" internal log-link syntax)
+    $github_issue_link = m_info("github.issue.link",false);
+    if ($github_issue_link) {
+        $body = preg_replace("/(?<!\()\#(\d+)(?!\))/","<a href='{$github_issue_link}$1'>#$1</a>",$body);
+    }
     // thread link
     $body = preg_replace("/\(\#(\d+)\)/","(<a href='{$script}?m=log&amp;logid=$1'>#$1</a>)",$body);
     $body = preg_replace("/\(\@(\d+)\)/","(<a href='{$script}?m=thread&amp;threadid=$1'>@$1</a>)",$body);

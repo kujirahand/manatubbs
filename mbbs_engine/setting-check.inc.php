@@ -30,6 +30,7 @@ $defvalue["bot.message"]     = "棚から牡丹餅";
 $defvalue["antispam.min_wait_ms"] = 3000; // 投稿までの最低待機時間（ミリ秒）
 $defvalue["adminpass"]       = "manatu_admin";
 $defvalue["repos.link"]      = "https://github.com/kujirahand/manatubbs";
+$defvalue["github.issue.link"] = "https://github.com/kujirahand/manatubbs/issues/";
 
 $defvalue["ng_words"] = [];
 

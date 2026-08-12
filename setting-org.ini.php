@@ -31,6 +31,7 @@ $mbbs["tree.perpage"]    = 8;
 $mbbs["bot.message"]     = "棚から牡丹餅";
 $mbbs["adminpass"]       = "manatu_admin";
 $mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
+$mbbs["github.issue.link"] = "https://github.com/kujirahand/manatubbs/issues/"; // 本文中の #123 をGitHub Issuesへ自動リンク
 
 /**
  * NGワード設定
