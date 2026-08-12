@@ -412,6 +412,43 @@
 
 img { border-width: 0px; }
 
+.mbbs-form-error {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 16px 20px;
+    border: 2px solid #e0526f;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fff1f3 0%, #ffdce3 100%);
+    color: #8b1832;
+    font-size: 1.05em;
+    font-weight: 600;
+    box-shadow: 0 5px 14px rgba(180, 34, 73, 0.18);
+    animation: mbbsFormErrorPopIn 0.3s ease-out;
+}
+
+.mbbs-form-error strong {
+    color: #a31536;
+}
+
+.mbbs-form-error-icon {
+    flex: 0 0 auto;
+    font-size: 1.5em;
+}
+
+@keyframes mbbsFormErrorPopIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .msg {
     display: flex;
     align-items: center;

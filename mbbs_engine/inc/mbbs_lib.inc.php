@@ -283,7 +283,7 @@ function m_antispam_get_min_wait_ms()
     global $mbbs;
     if (!isset($mbbs['antispam.min_wait_ms']) ||
         !is_numeric($mbbs['antispam.min_wait_ms'])) {
-        return 10000;
+        return 3000;
     }
     return max(0, intval($mbbs['antispam.min_wait_ms']));
 }
@@ -521,7 +521,9 @@ function m_show_error_with_form($msg)
     include "$dir/tpl/header.tpl.php";
     
     // エラーメッセージ + フォーム
-    $body = "<div class='notification is-warning'><strong>エラー:</strong> $msg</div>\n";
+    $body = "<div class='notification is-danger mbbs-form-error' role='alert'>".
+        "<span class='mbbs-form-error-icon' aria-hidden='true'>⚠️</span>".
+        "<span><strong>エラー:</strong> $msg</span></div>\n";
     $body .= m_show_form($form_caption);
     
     include "$dir/tpl/body.tpl.php";

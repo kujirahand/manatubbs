@@ -67,6 +67,13 @@ assert_antispam_test(
     '前回の成功から設定したミリ秒数で許可する'
 );
 
+$mbbs = array();
+assert_antispam_test(
+    3000,
+    m_antispam_get_min_wait_ms(),
+    '待機時間の既定値は3000ミリ秒である'
+);
+
 $mbbs = array('antispam.min_wait_ms' => 2500);
 assert_antispam_test(
     2500,

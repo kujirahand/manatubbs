@@ -29,7 +29,6 @@ $mbbs["threads.perpage"] = 50;
 $mbbs["logs.perpage"]    = 20;
 $mbbs["tree.perpage"]    = 8;
 $mbbs["bot.message"]     = "棚から牡丹餅";
-$mbbs["antispam.min_wait_ms"] = 10000; // 投稿までの最低待機時間（ミリ秒）
 $mbbs["adminpass"]       = "manatu_admin";
 $mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
 
@@ -142,4 +141,4 @@ $mbbs["menubar"][] = array("type"=>"html",      "link"=>m_info("HOME"));
 /**
  * スパム対策の設定
  */
-$mbbs["antispam.min_wait_ms"] = 1000 * 5; // 投稿までの最低待機時間（ミリ秒）
+$mbbs["antispam.min_wait_ms"] = 3000; // 投稿までの最低待機時間（ミリ秒）

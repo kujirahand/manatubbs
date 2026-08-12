@@ -27,7 +27,7 @@ $defvalue["threads.perpage"] = 50;
 $defvalue["logs.perpage"]    = 20;
 $defvalue["tree.perpage"]    = 8;
 $defvalue["bot.message"]     = "棚から牡丹餅";
-$defvalue["antispam.min_wait_ms"] = 10000; // 投稿までの最低待機時間（ミリ秒）
+$defvalue["antispam.min_wait_ms"] = 3000; // 投稿までの最低待機時間（ミリ秒）
 $defvalue["adminpass"]       = "manatu_admin";
 $defvalue["repos.link"]      = "https://github.com/kujirahand/manatubbs";
 
