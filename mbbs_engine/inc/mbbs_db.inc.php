@@ -198,9 +198,8 @@ function m_db_get_threads_with_likes($where_str, $limit, $offset)
 // table io
 //----------------------------------------------------------------------
 
-function m_get_index($threadid, &$items)
+function m_get_index($threadid, &$items, $status = null)
 {
-    $res = "<div class='indexbox'>\n";
     $r = m_db_query("SELECT * FROM logs WHERE threadid=? ORDER BY ctime ASC", [$threadid]);
     $root = FALSE;
     foreach ($r as $log) {
@@ -215,6 +214,15 @@ function m_get_index($threadid, &$items)
         } else {
             $items[$parentid]["children"][] = $logid;
         }
+    }
+    if ($status === null && $root !== FALSE && isset($items[$root]["status"])) {
+        $status = $items[$root]["status"];
+    }
+    $is_solved = ($status === "解決");
+    $box_class = "indexbox" . ($is_solved ? " is-solved" : "");
+    $res = "<div class='{$box_class}'>\n";
+    if ($is_solved) {
+        $res .= "<span class='solved-badge'>✔ 解決済み</span>\n";
     }
     if ($root) {
         $res .= m_get_index_title__(0, $items, $root);
@@ -365,8 +373,9 @@ function m_show_tree()
     $pager .= "</span>\n";
     foreach ($r as $row) {
         $threadid = $row["threadid"];
+        $status = isset($row["status"]) ? $row["status"] : null;
         $items = array();
-        $res .= m_get_index($threadid, $items);
+        $res .= m_get_index($threadid, $items, $status);
         $res .= "<br/>";
     }
     $res = $pager."<br/>\n".$res.$pager."<br/>\n";

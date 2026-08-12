@@ -202,12 +202,44 @@
 }
 
 .indexbox {
+    position: relative;
     border: 1px solid #f5c2ce;
     background-color: #ffffff;
     padding: 16px 20px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(216, 75, 117, 0.05);
     margin: 16px 0;
+}
+
+.indexbox.is-solved {
+    background-color: #f3e9ec;
+    border-color: #d8c3c8;
+    box-shadow: 0 4px 12px rgba(120, 90, 100, 0.06);
+}
+
+.indexbox.is-solved .node:hover {
+    background-color: #e6d9dd;
+}
+
+.indexbox.is-solved .tree-title {
+    color: #6e4652;
+}
+
+.indexbox.is-solved .tree-title:hover {
+    color: #a84865;
+}
+
+.solved-badge {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background-color: #c48897;
+    color: #ffffff;
+    font-size: 0.75em;
+    font-weight: bold;
+    padding: 2px 10px;
+    border-radius: 12px;
+    letter-spacing: 0.03em;
 }
 
 .body {
