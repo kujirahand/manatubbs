@@ -107,29 +107,68 @@ function m_array_value(&$array, $value, $def = false)
 function m_create_menu(&$menu)
 {
     $r = array();
-    foreach($menu as $v) {
+    $cur_m = m_param("m", "all");
+    $count = count($menu);
+
+    for ($i = 0; $i < $count; $i++) {
+        $v = $menu[$i];
         $type = m_array_value($v, "type", "normal");
-        $s    = "";
-        $link = "";
+        $lbl  = m_array_value($v, "label", "");
+        $link = m_array_value($v, "link", "");
+
+        // 「ツリー」があれば「スレッド」とまとめて1つのspanで囲む
+        if ($type === "normal" && $lbl === "ツリー") {
+            $thread_v = null;
+            $next_idx = -1;
+            for ($j = $i + 1; $j < $count; $j++) {
+                if (m_array_value($menu[$j], "label", "") === "スレッド") {
+                    $thread_v = $menu[$j];
+                    $next_idx = $j;
+                    break;
+                }
+            }
+            
+            if ($thread_v !== null) {
+                $tree_link = $link;
+                $thread_link = m_array_value($thread_v, "link", "");
+                
+                $tree_active = ($cur_m === "tree") ? " is-active" : "";
+                $thread_active = ($cur_m === "threads" || $cur_m === "all" || $cur_m === "") ? " is-active" : "";
+                
+                $html = "<span class='menu-switch-group'>" .
+                        "<span class='menu-item menu-switch{$tree_active}'><a href='{$tree_link}'>ツリー</a></span>" .
+                        "<span class='menu-item menu-switch{$thread_active}'><a href='{$thread_link}'>スレッド</a></span>" .
+                        "</span>";
+                
+                $r[] = $html;
+                $i = $next_idx;
+                continue;
+            }
+        }
+
         switch ($type) {
             case "normal":
-                $lbl   = $v["label"];
-                $link  = $v["link"];
-                $s = "[<a href='{$link}'>{$lbl}</a>]";
+                $is_active = FALSE;
+                if (preg_match('/[?&]m=([a-zA-Z0-9_]+)/', $link, $matches)) {
+                    if ($matches[1] === $cur_m) {
+                        $is_active = TRUE;
+                    }
+                } else if ($cur_m === 'all' && (strpos($link, 'index.php') !== FALSE && strpos($link, 'm=') === FALSE)) {
+                    $is_active = TRUE;
+                }
+                
+                $active_cls = $is_active ? " is-active" : "";
+                $r[] = "<span class='menu-item{$active_cls}'><a href='{$link}'>{$lbl}</a></span>";
                 break;
             case "html":
-                $link  = $v["link"];
-                $s = "[$link]";
+                $r[] = "<span class='menu-item'>$link</span>";
                 break;
             case "-":
-                $s = "-";
+                $r[] = "<span class='menu-sep'>・</span>";
                 break;
         }
-        if ($s != "") {
-            $r[] = $s;
-        }
     }
-    return join(" ", $r);
+    return join("", $r);
 }
 //----------------------------------------------------------------------
 // form
@@ -206,17 +245,7 @@ function m_form_parts($caption, $name, $type, $attr = [], $value = "")
             $f = "<input type='hidden' name='$name' value='$value'{$attr_s}>";
             break;
         case "file":
-            $f = "<div class='file'>";
-            $f .= " <label class='file-label'>";
-            $f .= "   <input class='file-input' type='file' name='$name' $attr_s />";
-            $f .= "   <span class='file-cta'>";
-            $f .= "     <span class='file-icon'>";
-            $f .= "       <span class='fas fa-upload'>🎁</span>";
-            $f .= "     </span>";
-            $f .= "     <span class='file-label'>ファイルを選択...</span>";
-            $f .= "   </span>";
-            $f .= "  </label>";
-            $f .= "</div>";
+            $f = "<input class='input' type='file' name='$name' $attr_s />";
             break;
     }
     if ($hint != "") {

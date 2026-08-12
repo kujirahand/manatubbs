@@ -2,21 +2,16 @@
 global $mbbs;
 extract($mbbs);
 
-$mbar = m_info("menubar");
-$mbar_html = m_create_menu($mbar); 
+$home = m_info("HOME");
 $ver = MBBS_VER;
 
 echo <<< __EOS__
 <div id="footer">
-  <div class="menubar">{$mbar_html}</div>
-  
-  <p>
-    <a href="{$script_name}?m=rss">♪RSS</a>
-    -
-    <a href="https://kujirahand.com/wiki/index.php?manatubbs">
-     manatubbs v.{$ver}</a>
-  </p>
-  <br><br>
+  <div class="footer-links">
+    <span class="footer-item">{$home}</span>
+    <span class="footer-sep">・</span>
+    <span class="footer-item"><a href="https://kujirahand.com/wiki/index.php?manatubbs">manatubbs v.{$ver}</a></span>
+  </div>
 </div>
 </body>
 </html>

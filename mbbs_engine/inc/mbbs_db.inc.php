@@ -182,6 +182,18 @@ function m_db_increment_log_likes($logid)
     );
 }
 
+function m_db_get_threads_with_likes($where_str, $limit, $offset)
+{
+    $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
+    return m_db_query(
+        "SELECT threads.*, ".
+        "COALESCE((SELECT SUM(logs.likes) FROM logs ".
+        "WHERE logs.threadid=threads.threadid), 0) AS likes ".
+        "FROM threads {$where} ORDER BY threads.mtime DESC LIMIT ? OFFSET ?",
+        [intval($limit), intval($offset)]
+    );
+}
+
 //----------------------------------------------------------------------
 // table io
 //----------------------------------------------------------------------
@@ -228,10 +240,9 @@ function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
     $sta_color      = m_info("status.color");
     // query threads
     $pager = "";
-    $where = ($where_str !== FALSE) ? "WHERE {$where_str}" : "";
-    $r = m_db_query("SELECT * FROM threads $where ORDER BY mtime DESC LIMIT ? OFFSET ?", [$limit, $offset]);
+    $r = m_db_get_threads_with_likes($where_str, $limit, $offset);
     if (count($r) == 0) {
-        return "<div class='item'>ログがありません。</div>";
+        return "<div class='item no-logs'>ログがありません。</div>";
     }
     $pager .= "<span class='pager'>";
     if ($page > 0) {
@@ -248,7 +259,7 @@ function m_show_all($title = "", $where_str = FALSE, $m_mode = "all")
 <div class="thread">
 <div class="desctiption2">$title</div>
 <table>
-<tr class="head"><th>@ID</th><th>タイトル</th><th>返信</th><th>更新日</th><th>{$priority_label}</th><th>{$status_label}</t></tr>
+<tr class="head"><th>@ID</th><th>タイトル</th><th>返信</th><th>更新</th><th>優先</th><th>{$status_label}</t></tr>
 EOS__;
     foreach ($r as $row) {
         $threadid = $row["threadid"];
@@ -256,6 +267,10 @@ EOS__;
         $priority = htmlspecialchars($row["mode"]);
         $status = htmlspecialchars($row["status"]);
         $count = intval($row["count"]);
+        $likes = intval($row["likes"]);
+        $likes_label = ($likes > 0)
+            ? " <span class='thread-likes'>👍<span class='thread-likes-count'>{$likes}</span></span>"
+            : "";
         $date = m_date($row["mtime"]);
         $color = $bgcolor = $style = "";
         if (isset($pri_color[$priority])) {
@@ -272,7 +287,7 @@ EOS__;
             $style = " style='background-color:$bgcolor;color:$color;$style;'";
         }
         //
-        $titlelink = "<a href='{$script}?m=thread&threadid=$threadid'>$title</a>";
+        $titlelink = "<a href='{$script}?m=thread&threadid=$threadid'>$title</a>{$likes_label}";
         $idlink = "<a href='{$script}?m=thread&threadid=$threadid'>@{$threadid}</a>";
         $res .= <<<EOS__
 <tr{$style}><td align="right">$idlink</td><td>$titlelink</td><td align="right">$count</td><td>$date</td><td>$priority</td><td>$status</td></tr>
@@ -335,7 +350,7 @@ function m_show_tree()
     $pager = "";
     $r = m_db_query("SELECT * FROM threads ORDER BY mtime DESC LIMIT ? OFFSET ?", [$limit, $offset]);
     if (count($r) == 0) {
-        return "<div class='item'>ログがありません。</div>";
+        return "<div class='item no-logs'>ログがありません。</div>";
     }
     $pager .= "<span class='pager'>";
     if ($page > 0) {
@@ -543,11 +558,11 @@ function m_get_index_title__($level, $items, $no)
     $log = $items[$no];
     extract($log);
     if ($level > 0) {
-        $tree = "<tt>";
-        for ($i = 0; $i < $level; $i++) {
-            $tree .= "　　";
+        $tree = "<span class='tree-indent'>";
+        for ($i = 0; $i < $level - 1; $i++) {
+            $tree .= "│&nbsp;&nbsp;";
         }
-        $tree .= "</tt>";
+        $tree .= "└─&nbsp;</span>";
     } else {
         $tree = "";
     }
@@ -560,7 +575,7 @@ function m_get_index_title__($level, $items, $no)
     if ($level == 0) {
         $link = m_link(array("m=thread","threadid={$threadid}"));
         $css = ($logid == m_param("logid")) ? "curnode" : "itemnode";
-        $icon = "<a href='{$link}'><span class='$css'>■</span></a>";
+        $icon = "<a href='{$link}'><span class='$css'>📌</span></a>";
         array_push   ($head_a,"<span class='root'>$icon ");
         array_unshift($foot_a,"</span>");
     } else {
@@ -578,10 +593,14 @@ function m_get_index_title__($level, $items, $no)
     $title = mb_strimwidth($title, 0, 40, '..');
     $title = htmlspecialchars($title);
     $name = htmlspecialchars($name);
+    $likes = isset($log['likes']) ? intval($log['likes']) : 0;
+    $likes_label = ($likes > 0)
+        ? " <span class='thread-likes'>👍<span class='thread-likes-count'>{$likes}</span></span>"
+        : "";
     $link = m_link(array("m=log","logid={$logid}"));
     $logidlink = "<span class='id'>(<a href='{$link}'>#{$logid}</a>)</span>";
-    $line  = "<a href='{$link}'>$title</a> / $name $mtime $logidlink";
-    $line .= "<span class='hint'>/ $mode $status</span>";
+    $line  = "<a class='tree-title' href='{$link}'>$title</a>{$likes_label} <span class='tree-meta'>/ $name $mtime $logidlink</span>";
+    $line .= " <span class='hint'>/$mode $status</span>";
 
     $s = join("",$head_a) . $tree . $line . join("",$foot_a);
 

@@ -56,7 +56,7 @@ function m_show_form($caption = "", $formmode = "write")
     $items = array();
     $items[] = m_form_parts("名前",		"mbbs_user_name",	"text",     array("style"=>"width:70%"), $ff_name);
     $items[] = m_form_parts("タイトル",	"mbbs_user_title",	"text",     array("style"=>"width:70%"), $ff_title);
-    $items[] = m_form_parts("本文",		"mbbs_user_body",	"textarea", array("style"=>"width:90%;height:130px;"), $ff_body);
+    $items[] = m_form_parts("本文",		"mbbs_user_body",	"textarea", array("style"=>"width:100%;height:130px;"), $ff_body);
     $items[] = m_form_parts(
     	m_info("priority.label"),		"mode",     "select",
                 array(
@@ -99,7 +99,7 @@ function m_show_form($caption = "", $formmode = "write")
     
     return
     "<div class='inputform'>\n".
-    "<div><a name='inputform'>→</a>{$caption_}:</div><br/>\n".
+    "<div class='inputform-title'><a name='inputform'></a>✏️ {$caption_}</div>\n".
     m_build_form($items, "post", $caption, TRUE).
     "</div><!-- end of inputform -->\n";
 }
