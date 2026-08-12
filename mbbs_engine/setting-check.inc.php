@@ -27,15 +27,9 @@ $defvalue["threads.perpage"] = 50;
 $defvalue["logs.perpage"]    = 20;
 $defvalue["tree.perpage"]    = 8;
 $defvalue["bot.message"]     = "棚から牡丹餅";
+$defvalue["antispam.min_wait_ms"] = 10000; // 投稿までの最低待機時間（ミリ秒）
 $defvalue["adminpass"]       = "manatu_admin";
 $defvalue["repos.link"]      = "https://github.com/kujirahand/manatubbs";
-
-/**
- * スパム対策
- */
-$defvalue["bot.q"]           = "「真夏」の読み方を記入してください。";
-$defvalue["bot.a"]           = "まなつ";
-$defvalue["bot.enabled"]     = TRUE;
 
 $defvalue["ng_words"] = [];
 

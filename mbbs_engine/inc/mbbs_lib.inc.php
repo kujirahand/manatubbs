@@ -271,6 +271,112 @@ function m_password_to_sha($pass)
 }
 
 /**
+ * スパム対策: フォームを表示した時刻をサーバー側で記録する
+ */
+function m_antispam_now_ms()
+{
+    return intval(floor(microtime(true) * 1000));
+}
+
+function m_antispam_get_min_wait_ms()
+{
+    global $mbbs;
+    if (!isset($mbbs['antispam.min_wait_ms']) ||
+        !is_numeric($mbbs['antispam.min_wait_ms'])) {
+        return 10000;
+    }
+    return max(0, intval($mbbs['antispam.min_wait_ms']));
+}
+
+function m_antispam_issue_form_token($now = null)
+{
+    if ($now === null) { $now = m_antispam_now_ms(); }
+    if (!isset($_SESSION['mbbs_form_tokens']) || !is_array($_SESSION['mbbs_form_tokens'])) {
+        $_SESSION['mbbs_form_tokens'] = array();
+    }
+
+    // 期限切れトークンを削除する
+    foreach ($_SESSION['mbbs_form_tokens'] as $token => $issued_at) {
+        if (!is_numeric($issued_at) || $now - intval($issued_at) > 3600000) {
+            unset($_SESSION['mbbs_form_tokens'][$token]);
+        }
+    }
+
+    // 複数タブを許可しつつ、セッション内で無制限に増えないようにする
+    if (count($_SESSION['mbbs_form_tokens']) >= 20) {
+        $_SESSION['mbbs_form_tokens'] = array_slice(
+            $_SESSION['mbbs_form_tokens'], -19, null, true
+        );
+    }
+
+    $token = bin2hex(random_bytes(32));
+    $_SESSION['mbbs_form_tokens'][$token] = intval($now);
+    return $token;
+}
+
+/**
+ * エラー後の再表示では、まだ有効なフォームトークンを引き継ぐ
+ */
+function m_antispam_get_form_token($token = '', $now = null)
+{
+    if ($now === null) { $now = m_antispam_now_ms(); }
+    if (is_string($token) && $token !== '' &&
+        isset($_SESSION['mbbs_form_tokens'][$token])) {
+        $issued_at = intval($_SESSION['mbbs_form_tokens'][$token]);
+        if ($issued_at <= $now && $now - $issued_at <= 3600000) {
+            return $token;
+        }
+    }
+    return m_antispam_issue_form_token($now);
+}
+
+/**
+ * スパム対策: ハニーポット、フォーム経過時間、連続投稿を検証する
+ */
+function m_antispam_validate($token, $website, $now = null, $min_wait_ms = null)
+{
+    if ($now === null) { $now = m_antispam_now_ms(); }
+    if ($min_wait_ms === null) { $min_wait_ms = m_antispam_get_min_wait_ms(); }
+    $min_wait_ms = max(0, intval($min_wait_ms));
+    if (!is_string($website) || trim($website) !== '') {
+        return 'honeypot';
+    }
+    if (!is_string($token) || $token === '' ||
+        !isset($_SESSION['mbbs_form_tokens'][$token])) {
+        return 'invalid_token';
+    }
+
+    $issued_at = intval($_SESSION['mbbs_form_tokens'][$token]);
+    $form_age = $now - $issued_at;
+    if ($form_age < 0 || $form_age > 3600000) {
+        return 'invalid_token';
+    }
+    if ($form_age < $min_wait_ms) {
+        return 'too_fast';
+    }
+
+    if (isset($_SESSION['mbbs_last_write_time'])) {
+        $last_write_age = $now - intval($_SESSION['mbbs_last_write_time']);
+        if ($last_write_age >= 0 && $last_write_age < $min_wait_ms) {
+            return 'too_fast';
+        }
+    }
+    return 'ok';
+}
+
+/**
+ * 投稿成功後にフォームトークンを無効化し、成功時刻を記録する
+ */
+function m_antispam_mark_success($token, $now = null)
+{
+    if ($now === null) { $now = m_antispam_now_ms(); }
+    if (is_string($token) && isset($_SESSION['mbbs_form_tokens'][$token])) {
+        unset($_SESSION['mbbs_form_tokens'][$token]);
+    }
+    $_SESSION['mbbs_last_write_time'] = intval($now);
+}
+
+/**
  * CSRF対策: トークンを生成する
  */
 function m_csrf_generate_token()

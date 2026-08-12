@@ -29,15 +29,9 @@ $mbbs["threads.perpage"] = 50;
 $mbbs["logs.perpage"]    = 20;
 $mbbs["tree.perpage"]    = 8;
 $mbbs["bot.message"]     = "棚から牡丹餅";
+$mbbs["antispam.min_wait_ms"] = 10000; // 投稿までの最低待機時間（ミリ秒）
 $mbbs["adminpass"]       = "manatu_admin";
 $mbbs["repos.link"]      = "http://code.google.com/p/nadesiko/source/detail?r=";
-
-/**
- * スパム対策
- */
-$mbbs["bot.q"]           = "「真夏」の読み方を平仮名で記入してください。";
-$mbbs["bot.a"]           = "まなつ";
-$mbbs["bot.enabled"]     = TRUE;
 
 /**
  * NGワード設定

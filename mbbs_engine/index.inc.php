@@ -292,6 +292,24 @@ function m_mode__edit()
     exit;
 }
 
+function m_mode__check_antispam()
+{
+    $result = m_antispam_validate(
+        m_param('mbbs_form_token', ''),
+        isset($_POST['website']) ? $_POST['website'] : ''
+    );
+    if ($result == 'honeypot') {
+        m_show_error("フォームから書き込んでください。");
+    }
+    if ($result == 'too_fast') {
+        $wait_ms = m_antispam_get_min_wait_ms();
+        m_show_error_with_form("フォームを開いてから{$wait_ms}ミリ秒以上待って投稿してください。");
+    }
+    if ($result != 'ok') {
+        m_show_error("フォームの有効期限が切れています。ページを再読み込みしてから再度お試しください。");
+    }
+}
+
 function m_mode__write_checkParam(&$thread_v, &$log_v)
 {
     //--------------------
@@ -320,12 +338,8 @@ function m_mode__write_checkParam(&$thread_v, &$log_v)
     if ($bot_param != $bot_message) {
         m_show_error("フォームから書き込んでください。");
     }
-    // 日本語 bot チェック
-    if (m_info('bot.enabled')) {
-        if (m_param("manatubbs_checkbot") != m_info("bot.a")) {
-            m_show_error_with_form("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
-        }
-    }
+
+    m_mode__check_antispam();
 	//--------------------
     // フィールドチェック
 	//--------------------
@@ -547,6 +561,7 @@ function m_mode__write()
         }
     }
     m_db_exec("commit", []);
+    m_antispam_mark_success(m_param('mbbs_form_token', ''));
     
     // CSRF トークンをクリア（新しいトークンを生成するため）
     m_csrf_clear_token();
@@ -587,10 +602,8 @@ function mbbs_setcookie($log_v)
 {
     // cookie
     $limit = time() + (60*60*24*90); // 90 day
-    $limit_short = time() + (60*60*24*30); // 30 day
     setcookie("mbbs_name",		$log_v["name"], $limit);
     setcookie("mbbs_editkey",	$log_v["editkey"], $limit); // ハッシュを保存
-    setcookie("mbbs_botkey",	m_param("manatubbs_checkbot",""), $limit_short);
 }
 
 function m_mode__editlog()
@@ -621,12 +634,8 @@ function m_mode__editlog()
     if ($bot_param != $bot_message) {
         m_show_error("フォームから書き込んでください。");
     }
-    // 日本語 bot チェック
-    if (m_info('bot.enabled')) {
-        if (m_param("manatubbs_checkbot") != m_info("bot.a")) {
-            m_show_error_with_form("フォームの「いたずら防止」の項目が間違っています。".m_info("bot.q"));
-        }
-    }
+
+    m_mode__check_antispam();
 	//--------------------
     // フィールドチェック
 	//--------------------
@@ -729,6 +738,7 @@ function m_mode__editlog()
         m_show_error("DBへの書き込みに失敗。");
     }
     m_db_exec("commit", []);
+    m_antispam_mark_success(m_param('mbbs_form_token', ''));
     
     // CSRF トークンをクリア（新しいトークンを生成するため）
     m_csrf_clear_token();

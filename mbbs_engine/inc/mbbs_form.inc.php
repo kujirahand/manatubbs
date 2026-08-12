@@ -69,14 +69,6 @@ function m_show_form($caption = "", $formmode = "write")
                     'items'=>m_info('status'),
                     'style'=>'width:200px',
                 ), $ff_status);
-    if (m_info('bot.enabled')) {
-        $bot_key_value = m_param("manatubbs_checkbot", m_cookie("mbbs_botkey",""));
-        $items[] = m_form_parts("確認キー","manatubbs_checkbot", "text",
-                array(
-                    'hint'=>"👆お手数ですが、いたずら防止のために、".m_info('bot.q'),
-                    'style'=>'width:200px',
-                ), $bot_key_value);
-    }
     $editkey_value = m_param("mbbs_user_editkey", m_cookie("mbbs_editkey", ""));
     $items[] = m_form_parts(
     	"編集キー","mbbs_user_editkey",  "password",
@@ -95,6 +87,12 @@ function m_show_form($caption = "", $formmode = "write")
     $items[] = m_form_parts("", "parentid", "hidden", array(), m_param("parentid",0));
     $items[] = m_form_parts("", "logid", "hidden", array(), m_param("logid",0));
     $items[] = m_form_parts("", "bot",  "hidden", array(), $mbbs["bot.message"]);
+    $items[] = "<div class='field mbbs-honeypot' aria-hidden='true'>".
+        "<label class='label' for='website'>Website</label>".
+        "<div class='control'><input class='input' type='text' id='website' ".
+        "name='website' value='' tabindex='-1' autocomplete='off'></div></div>";
+    $form_token = m_antispam_get_form_token(m_param("mbbs_form_token", ""));
+    $items[] = m_form_parts("", "mbbs_form_token", "hidden", array(), $form_token);
     $items[] = m_form_parts("", "csrf_token", "hidden", array(), m_csrf_generate_token());
     
     return

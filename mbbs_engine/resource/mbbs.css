@@ -269,6 +269,14 @@
     margin-bottom: 12px;
 }
 
+.inputform .mbbs-honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
 .inputform .label {
     color: #632236;
     font-weight: 600;
