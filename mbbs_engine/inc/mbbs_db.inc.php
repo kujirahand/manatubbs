@@ -146,6 +146,15 @@ function m_db_last_insert_rowid()
     return $id;
 }
 
+function m_db_has_duplicate_body_since($body, $since)
+{
+    $r = m_db_query(
+        "SELECT logid FROM logs WHERE body=? AND ctime>=? LIMIT 1",
+        [$body, $since]
+    );
+    return !empty($r);
+}
+
 //----------------------------------------------------------------------
 // table io
 //----------------------------------------------------------------------

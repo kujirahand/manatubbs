@@ -360,7 +360,13 @@ function m_mode__write()
     $thread_v = array();
     $log_v    = array();
     m_mode__write_checkParam($thread_v, $log_v);
-    m_db_exec("begin", []);
+    // 同時に届いた投稿も直列化して、重複チェックをすり抜けないようにする
+    m_db_exec("begin immediate", []);
+    $duplicate_since = time() - 180;
+    if (m_db_has_duplicate_body_since($log_v["body"], $duplicate_since)) {
+        m_db_exec("rollback", []);
+        m_show_error_with_form("同一の本文が3分以内に投稿されています。内容を確認の上、再度投稿してください。");
+    }
     // 簡略版を作っておく
     $title = $log_v["title"];
     $name  = $log_v["name"];
