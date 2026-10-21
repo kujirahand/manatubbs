@@ -43,6 +43,7 @@ $defvalue["readonly"]        = FALSE;
 /**
  * アップロードの設定
  */
+$defvalue["upload.allow"]        = FALSE;
 $defvalue["upload.maxsize"]      = 1024 * 300; // 300KB
 $defvalue["upload.format.hint"]  = "画像ファイル(最大300KB)を添付可能";
 $defvalue["upload.format"]       = "#\.(jpeg|jpg|png|gif)$#i";

@@ -77,11 +77,13 @@ function m_show_form($caption = "", $formmode = "write")
                     'hint'=>'編集時に使うキーを入力(省略可能)',
                     'style'=>'width:200px',
                 ), $editkey_value); // この編集キーは大して重要ではないと思うが sha1 で暗号化したもの。
-    $items[] = m_form_parts("添付ファイル", "attach",   "file", 
-                array(
-                    "hint"=>m_info('upload.format.hint'),
-                ));
-    $items[] = m_form_parts("", "MAX_FILE_SIZE",  "hidden", array(), m_info("upload.maxsize", 1024*1024));
+    if (m_info('upload.allow', FALSE)) {
+        $items[] = m_form_parts("添付ファイル", "attach",   "file", 
+                    array(
+                        "hint"=>m_info('upload.format.hint'),
+                    ));
+        $items[] = m_form_parts("", "MAX_FILE_SIZE",  "hidden", array(), m_info("upload.maxsize", 1024*1024));
+    }
     $items[] = m_form_parts("", "m",   "hidden", array(), $formmode);
     $items[] = m_form_parts("", "threadid", "hidden", array(), m_param("threadid",0));
     $items[] = m_form_parts("", "parentid", "hidden", array(), m_param("parentid",0));
