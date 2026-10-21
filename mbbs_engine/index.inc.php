@@ -460,6 +460,12 @@ function m_mode__write()
         $file_size = $_FILES['attach']['size'];
         $file_temp = $_FILES['attach']['tmp_name'];
         $file_err  = $_FILES['attach']['error'];
+
+        // アップロード禁止(デフォルト)
+        if (!m_info('upload.allow', FALSE)) {
+            m_db_exec("rollback", []);
+            m_show_error("ファイルのアップロードは許可されていません。"); exit;
+        }
         
         // アップロードエラーチェック
         if ($file_err !== UPLOAD_ERR_OK) {

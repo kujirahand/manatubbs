@@ -64,6 +64,8 @@ $mbbs["readonly"] = FALSE;
 /**
  * アップロードの設定
  */
+// ファイルのアップロードはデフォルトで禁止。許可する場合は TRUE に設定
+$mbbs["upload.allow"]        = FALSE;
 $mbbs["upload.maxsize"]      = 1024 * 300; // 300KB
 $mbbs["upload.format.hint"]  = "画像ファイル(最大300KB)を添付可能";
 $mbbs["upload.format"]       = "#\.(jpeg|jpg|png|gif)$#i";
